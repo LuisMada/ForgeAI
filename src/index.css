@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-neural text-white font-mono;
+  }
+}
+
+@layer components {
+  .neural-glow {
+    @apply shadow-lg shadow-synapse/20 border border-synapse/30;
+  }
+  
+  .plasma-glow {
+    @apply shadow-lg shadow-plasma/20 border border-plasma/30;
+  }
+  
+  .void-panel {
+    @apply bg-void/80 backdrop-blur-sm rounded-lg p-6;
+  }
+}
