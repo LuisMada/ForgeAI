@@ -3,8 +3,14 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     @apply bg-neural text-white font-mono;
+    height: 100%;
+    overflow-x: hidden;
+  }
+  
+  #root {
+    min-height: 100vh;
   }
 }
 
@@ -19,5 +25,26 @@
   
   .void-panel {
     @apply bg-void/80 backdrop-blur-sm rounded-lg p-6;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Prevent floating animations from being too aggressive */
+@layer utilities {
+  .animate-neural-fire {
+    animation: neuralFire 3s ease-in-out infinite;
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* Reduce motion for better stability */
+@media (prefers-reduced-motion: reduce) {
+  .animate-neural-fire,
+  .animate-pulse-glow {
+    animation: none;
   }
 }

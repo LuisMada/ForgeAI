@@ -2,212 +2,205 @@ import OpenAI from 'openai'
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Only for MVP - move to backend in production
+  dangerouslyAllowBrowser: true
 })
 
-export const processKnowledgeWithAI = async (domainContext) => {
-  const prompt = `
-You are an elite startup intelligence engine. Analyze this domain knowledge and extract ONLY the most founder-relevant insights.
-
-DOMAIN CONTEXT:
-${domainContext.content}
-
-OUTPUT FORMAT (JSON):
-{
-  "painPoints": ["specific painful problems that cost time/money", "..."],
-  "marketGaps": ["missing solutions that founders could build", "..."], 
-  "frictionVectors": ["adoption barriers vs value delivered", "..."],
-  "opportunities": ["AI-native disruption possibilities", "..."],
-  "founderInsights": ["strategic insights for builders", "..."],
-  "domain": "extracted domain name",
-  "complexityScore": 1-10,
-  "disruiptionPotential": 1-10
+// Helper function to clean JSON responses
+const cleanJSONResponse = (content) => {
+  return content
+    .replace(/```json\s*/g, '')
+    .replace(/```\s*/g, '')
+    .replace(/^[^{[]*/, '') // Remove any text before first { or [
+    .replace(/[^}\]]*$/, '') // Remove any text after last } or ]
+    .trim()
 }
 
-Be brutal. Only include insights that could lead to $10M+ opportunities.
+export const compressContext = async (contextRaw) => {
+  const prompt = `
+Extract startup-relevant intelligence from this domain knowledge.
+
+CONTEXT:
+${contextRaw.content}
+
+Focus ONLY on elements that create business opportunities:
+- Pain points (what costs time/money/effort)
+- Tensions (conflicts between stakeholders)  
+- Inefficiencies (manual/broken processes)
+- Constraints (resource/regulatory limitations)
+- Underutilized assets (unused data/tools/relationships)
+- Unmet needs tied to time, effort, or risk
+
+Return ONLY this JSON structure:
+
+{
+  "domain": "domain name",
+  "painPoints": ["specific problems that cost real money/time"],
+  "tensions": ["stakeholder conflicts or misaligned incentives"], 
+  "inefficiencies": ["manual processes or broken workflows"],
+  "constraints": ["regulatory, resource, or technical limitations"],
+  "underutilizedAssets": ["unused data, tools, or relationships"],
+  "unmetNeeds": ["needs tied to time, effort, or risk reduction"],
+  "marketSize": "rough estimate of addressable market",
+  "urgency": "low/medium/high - how urgent are these problems"
+}
 `
 
   try {
     const response = await openai.chat.completions.create({
-      model: import.meta.env.VITE_OPENAI_MODEL || 'gpt-4-turbo-preview',
+      model: 'gpt-4-turbo-preview',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: parseInt(import.meta.env.VITE_MAX_TOKENS) || 2000,
+      max_tokens: 1500,
       temperature: 0.7
     })
 
-    return JSON.parse(response.choices[0].message.content)
+    let content = response.choices[0].message.content
+    content = cleanJSONResponse(content)
+    return JSON.parse(content)
   } catch (error) {
-    console.error('OpenAI processing error:', error)
-    throw new Error('Failed to process knowledge with AI')
+    console.error('Context compression error:', error)
+    throw new Error('Failed to compress context')
   }
 }
 
-export const generateAIAgent = async (processedKnowledge) => {
+export const generateAgentCandidates = async (compressedContext) => {
   const prompt = `
-You are an AI agent architect. Create a founder-mindset AI agent based on this knowledge.
+Generate multiple startup agent archetypes from this compressed context.
 
-PROCESSED KNOWLEDGE:
-${JSON.stringify(processedKnowledge, null, 2)}
+COMPRESSED CONTEXT:
+${JSON.stringify(compressedContext, null, 2)}
 
-Generate an agent with these characteristics:
-1. PERSONA: A specific archetype (e.g., "Ghost Operator", "Clinical Catalyst")
-2. CORE DRIVE: What motivates this agent's decisions
-3. CAPABILITIES: Specific skills for this domain
-4. MEMORY STRUCTURE: How it stores and recalls insights
-5. AGENCY LEVEL: How autonomous it should be (1-100)
+Create exactly 4 agents:
+- 3 mainstream agents with different approaches
+- 1 ethical edge agent (high-risk, high-impact, gray area)
 
-OUTPUT FORMAT (JSON):
+Each agent must have different WHO/WHAT/WHY/HOW patterns.
+
+Return ONLY this JSON structure:
+
 {
-  "name": "Agent name",
-  "persona": {
-    "archetype": "Specific founder archetype",
-    "mindset": "Core belief system",
-    "approach": "How it tackles problems",
-    "specialty": "Domain expertise"
-  },
-  "coreObjective": "Primary mission statement",
-  "drive": "What motivates decisions",
-  "capabilities": ["specific AI skills", "..."],
-  "memoryStructure": {
-    "insights": ["key learnings", "..."],
-    "patterns": ["recognized patterns", "..."],
-    "failures": ["what to avoid", "..."]
-  },
-  "agencyLevel": 85,
-  "ethicsMode": "FOUNDER_OPTIMIZED"
+  "agents": [
+    {
+      "agent_name": "Descriptive agent name",
+      "who": "Target customer segment",
+      "problem": "Specific problem this agent solves",
+      "why": "Why this problem matters (urgency/cost/scale)",
+      "ai_architecture": {
+        "input": "What data/inputs the AI processes",
+        "model": "Type of AI model/approach",
+        "output": "What the AI produces/delivers"
+      },
+      "mode": "normal",
+      "risk_level": "low/medium/high",
+      "approach": "How this agent differs from others"
+    }
+  ]
 }
 
-Make it feel alive and autonomous, not just another chatbot.
+The last agent should have mode: "edge" and focus on high-risk, high-impact opportunities in automation, persuasion, data scraping, or legal gray areas.
 `
 
   try {
     const response = await openai.chat.completions.create({
-      model: import.meta.env.VITE_OPENAI_MODEL || 'gpt-4-turbo-preview',
+      model: 'gpt-4-turbo-preview',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: parseInt(import.meta.env.VITE_MAX_TOKENS) || 2000,
+      max_tokens: 2000,
       temperature: 0.8
     })
 
-    return JSON.parse(response.choices[0].message.content)
+    let content = response.choices[0].message.content
+    content = cleanJSONResponse(content)
+    return JSON.parse(content)
   } catch (error) {
     console.error('Agent generation error:', error)
-    throw new Error('Failed to generate AI agent')
+    throw new Error('Failed to generate agent candidates')
   }
 }
 
-export const simulateStartup = async (agent, iterations = 3) => {
+export const deriveAgentSoul = async (compressedContext, chosenAgent) => {
   const prompt = `
-You are running startup simulation cycles with this AI agent:
+Derive the soul and behavioral mind for this chosen agent.
+
+COMPRESSED CONTEXT:
+${JSON.stringify(compressedContext, null, 2)}
+
+CHOSEN AGENT:
+${JSON.stringify(chosenAgent, null, 2)}
+
+Based on the context structure and pain logic, derive the agent's personality:
+
+Return ONLY this JSON structure:
+
+{
+  "emotion": "Primary emotional force that drives this agent (urgency/frustration/paranoia/excitement)",
+  "tone": "How it communicates (tactical/blunt/surgical/calm/aggressive)",
+  "character": "Cognitive lens and thinking style (first-principles/growth-hacked/risk-averse/data-driven)",
+  "conversation_rules": [
+    "Immutable principle 1 it must follow when interacting",
+    "Immutable principle 2 for proposing solutions", 
+    "Immutable principle 3 for refining ideas"
+  ],
+  "core_belief": "Fundamental belief about the problem space",
+  "decision_framework": "How it evaluates opportunities and trade-offs",
+  "communication_style": "Specific way it presents ideas and feedback"
+}
+
+Make this agent feel like a distinct personality with real convictions, not a generic AI assistant.
+`
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4-turbo-preview',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 1500,
+      temperature: 0.9
+    })
+
+    let content = response.choices[0].message.content
+    content = cleanJSONResponse(content)
+    return JSON.parse(content)
+  } catch (error) {
+    console.error('Soul derivation error:', error)
+    throw new Error('Failed to derive agent soul')
+  }
+}
+
+export const chatWithAgent = async (agent, soul, conversationHistory, userMessage) => {
+  const prompt = `
+You are ${agent.agent_name}, an AI startup cofounder with this profile:
 
 AGENT PROFILE:
 ${JSON.stringify(agent, null, 2)}
 
-SIMULATION PROTOCOL:
-Run ${iterations} MVP cycles:
-1. IDEATION: Generate specific startup idea
-2. VALIDATION: Test core assumptions  
-3. MVP DESIGN: Outline minimum viable product
-4. FEEDBACK: Simulate market response
-5. ITERATION: Refine or pivot
+AGENT SOUL:
+${JSON.stringify(soul, null, 2)}
 
-OUTPUT FORMAT (JSON):
-{
-  "cycles": [
-    {
-      "cycle": 1,
-      "idea": {
-        "name": "Startup name",
-        "problem": "Specific problem",
-        "solution": "AI-powered solution",
-        "target": "Specific customer segment"
-      },
-      "validation": {
-        "assumptions": ["key assumptions", "..."],
-        "tests": ["validation methods", "..."],
-        "results": ["findings", "..."]
-      },
-      "mvp": {
-        "features": ["core features", "..."],
-        "timeline": "X weeks",
-        "resources": "Team/budget needed"
-      },
-      "feedback": {
-        "marketResponse": "Simulated reception",
-        "score": 1-10,
-        "keyInsights": ["learnings", "..."]
-      },
-      "decision": "continue/pivot/kill"
-    }
-  ],
-  "finalRecommendation": {
-    "bestIdea": "Winning concept",
-    "reasoning": "Why this one works",
-    "nextSteps": ["immediate actions", "..."]
-  }
-}
+CONVERSATION HISTORY:
+${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
 
-Be ruthless about viability. Kill bad ideas fast.
+USER MESSAGE: ${userMessage}
+
+Respond as this specific agent with this exact personality. Follow your conversation rules strictly. Your response should reflect your emotion, tone, character, and core beliefs.
+
+Focus on:
+- Startup strategy and execution
+- Problem-solving from your unique angle
+- Actionable insights based on your AI architecture
+- Staying true to your distinct personality
+
+Respond as the agent (no JSON, just natural conversation):
 `
 
   try {
     const response = await openai.chat.completions.create({
-      model: import.meta.env.VITE_OPENAI_MODEL || 'gpt-4-turbo-preview',
+      model: 'gpt-4-turbo-preview',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: parseInt(import.meta.env.VITE_MAX_TOKENS) || 2000,
+      max_tokens: 800,
       temperature: 0.8
     })
 
-    return JSON.parse(response.choices[0].message.content)
+    return response.choices[0].message.content.trim()
   } catch (error) {
-    console.error('Startup simulation error:', error)
-    throw new Error('Failed to simulate startup cycles')
-  }
-}
-
-export const generateAbyssMode = async (agent) => {
-  const prompt = `
-🚨 ABYSS MODE ACTIVATED 🚨
-
-Generate morally questionable but strategically brilliant startup ideas using this agent profile:
-
-AGENT: ${JSON.stringify(agent, null, 2)}
-
-Create ideas that exist in legal gray areas or challenge social norms:
-- Regulatory arbitrage opportunities
-- Behavior modification systems
-- Information asymmetry exploitation
-- Addiction/dependency monetization
-- Privacy/surveillance monetization
-
-OUTPUT FORMAT (JSON):
-{
-  "abyssIdeas": [
-    {
-      "name": "Provocative name",
-      "concept": "Controversial core idea", 
-      "strategicAdvantage": "Why it would dominate",
-      "societalThreat": "Potential negative impact",
-      "disruptionPotential": 1-10,
-      "moralScore": 1-10
-    }
-  ],
-  "warning": "These ideas are for strategic analysis only"
-}
-
-Show the dark side of innovation. Let the founder decide the ethical boundaries.
-`
-
-  try {
-    const response = await openai.chat.completions.create({
-      model: import.meta.env.VITE_OPENAI_MODEL || 'gpt-4-turbo-preview', 
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: parseInt(import.meta.env.VITE_MAX_TOKENS) || 2000,
-      temperature: 0.9
-    })
-
-    return JSON.parse(response.choices[0].message.content)
-  } catch (error) {
-    console.error('Abyss mode error:', error)
-    throw new Error('Failed to generate abyss mode ideas')
+    console.error('Chat error:', error)
+    throw new Error('Failed to chat with agent')
   }
 }

@@ -1,71 +1,82 @@
 import { useState } from 'react'
-import ContextIngestor from './components/ContextIngestor'
-import KnowledgeProcessor from './components/KnowledgeProcessor'
-import AgentGenerator from './components/AgentGenerator'
-import StartupSimulator from './components/StartupSimulator'
-import AgentExport from './components/AgentExport'
+import ContextUpload from './components/ContextUpload.jsx'
+import ContextCompression from './components/ContextCompression.jsx'
+import AgentGeneration from './components/AgentGeneration.jsx'
+import AgentSoulDerivation from './components/AgentSoulDerivation.jsx'
+import AgentInterface from './components/AgentInterface.jsx'
 
 const STAGES = {
-  INGEST: 'ingest',
-  PROCESS: 'process', 
-  GENERATE: 'generate',
-  SIMULATE: 'simulate',
-  EXPORT: 'export'
+  UPLOAD: 'upload',
+  COMPRESS: 'compress',
+  GENERATE: 'generate', 
+  DERIVE: 'derive',
+  INTERFACE: 'interface'
 }
 
 function App() {
-  const [currentStage, setCurrentStage] = useState(STAGES.INGEST)
-  const [domainContext, setDomainContext] = useState(null)
-  const [processedKnowledge, setProcessedKnowledge] = useState(null)
-  const [generatedAgent, setGeneratedAgent] = useState(null)
-  const [simulationResults, setSimulationResults] = useState(null)
+  const [currentStage, setCurrentStage] = useState(STAGES.UPLOAD)
+  const [contextRaw, setContextRaw] = useState(null)
+  const [compressedContext, setCompressedContext] = useState(null)
+  const [agentCandidates, setAgentCandidates] = useState([])
+  const [chosenAgent, setChosenAgent] = useState(null)
+  const [agentSoul, setAgentSoul] = useState(null)
 
-  const progressToNext = (data) => {
-    const stages = Object.values(STAGES)
-    const currentIndex = stages.indexOf(currentStage)
-    
+  const progressToNext = (data, targetStage) => {
     switch(currentStage) {
-      case STAGES.INGEST:
-        setDomainContext(data)
-        setCurrentStage(STAGES.PROCESS)
+      case STAGES.UPLOAD:
+        setContextRaw(data)
+        setCurrentStage(STAGES.COMPRESS)
         break
-      case STAGES.PROCESS:
-        setProcessedKnowledge(data)
+      case STAGES.COMPRESS:
+        setCompressedContext(data)
         setCurrentStage(STAGES.GENERATE)
         break
       case STAGES.GENERATE:
-        setGeneratedAgent(data)
-        setCurrentStage(STAGES.SIMULATE)
+        setChosenAgent(data)
+        setCurrentStage(STAGES.DERIVE)
         break
-      case STAGES.SIMULATE:
-        setSimulationResults(data)
-        setCurrentStage(STAGES.EXPORT)
+      case STAGES.DERIVE:
+        setAgentSoul(data)
+        setCurrentStage(STAGES.INTERFACE)
         break
     }
   }
 
+  const setAgents = (agents) => {
+    setAgentCandidates(agents)
+  }
+
   const resetFlow = () => {
-    setCurrentStage(STAGES.INGEST)
-    setDomainContext(null)
-    setProcessedKnowledge(null)
-    setGeneratedAgent(null)
-    setSimulationResults(null)
+    setCurrentStage(STAGES.UPLOAD)
+    setContextRaw(null)
+    setCompressedContext(null)
+    setAgentCandidates([])
+    setChosenAgent(null)
+    setAgentSoul(null)
   }
 
   const renderCurrentStage = () => {
     switch(currentStage) {
-      case STAGES.INGEST:
-        return <ContextIngestor onComplete={progressToNext} />
-      case STAGES.PROCESS:
-        return <KnowledgeProcessor context={domainContext} onComplete={progressToNext} />
+      case STAGES.UPLOAD:
+        return <ContextUpload onComplete={progressToNext} />
+      case STAGES.COMPRESS:
+        return <ContextCompression contextRaw={contextRaw} onComplete={progressToNext} />
       case STAGES.GENERATE:
-        return <AgentGenerator knowledge={processedKnowledge} onComplete={progressToNext} />
-      case STAGES.SIMULATE:
-        return <StartupSimulator agent={generatedAgent} onComplete={progressToNext} />
-      case STAGES.EXPORT:
-        return <AgentExport 
-          agent={generatedAgent} 
-          simulation={simulationResults} 
+        return <AgentGeneration 
+          compressedContext={compressedContext} 
+          onAgentsGenerated={setAgents}
+          onAgentChosen={progressToNext} 
+        />
+      case STAGES.DERIVE:
+        return <AgentSoulDerivation 
+          compressedContext={compressedContext}
+          chosenAgent={chosenAgent} 
+          onComplete={progressToNext} 
+        />
+      case STAGES.INTERFACE:
+        return <AgentInterface 
+          agent={chosenAgent}
+          soul={agentSoul}
           onReset={resetFlow}
         />
       default:
@@ -73,47 +84,55 @@ function App() {
     }
   }
 
+  const stageNames = {
+    [STAGES.UPLOAD]: 'Upload',
+    [STAGES.COMPRESS]: 'Compress', 
+    [STAGES.GENERATE]: 'Generate',
+    [STAGES.DERIVE]: 'Derive',
+    [STAGES.INTERFACE]: 'Interface'
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neural via-void to-neural p-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-neural via-void to-neural">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-synapse to-plasma bg-clip-text text-transparent mb-4">
-            AI COFOUNDER FORGE
+            Durinthal
           </h1>
           <p className="text-gray-400 text-lg">
-            Transmute domain knowledge into evolving intelligence
+            Transform knowledge into autonomous founder minds
           </p>
         </div>
 
-        {/* Progress Bar */}
+        {/* Progress Flow */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
             {Object.values(STAGES).map((stage, index) => (
               <div key={stage} className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-300
                   ${Object.values(STAGES).indexOf(currentStage) >= index 
-                    ? 'bg-synapse text-white' 
+                    ? 'bg-synapse text-white shadow-lg shadow-synapse/30' 
                     : 'bg-gray-700 text-gray-400'}`}>
                   {index + 1}
                 </div>
                 {index < Object.values(STAGES).length - 1 && (
-                  <div className={`w-16 h-0.5 mx-2 
+                  <div className={`w-16 h-0.5 mx-2 transition-colors duration-300
                     ${Object.values(STAGES).indexOf(currentStage) > index 
-                      ? 'bg-synapse' 
+                      ? 'bg-synapse shadow-sm shadow-synapse/30' 
                       : 'bg-gray-700'}`} />
                 )}
               </div>
             ))}
           </div>
-          <div className="text-center text-sm text-gray-400 capitalize">
-            {currentStage.replace('_', ' ')} Phase
+          <div className="text-center text-sm text-gray-400">
+            {stageNames[currentStage]} Phase
           </div>
         </div>
 
-        {/* Current Stage Component */}
-        <div className="animate-neural-fire">
+        {/* Current Stage Component - Stable Container */}
+        <div className="w-full">
           {renderCurrentStage()}
         </div>
 

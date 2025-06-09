@@ -14,13 +14,17 @@ export default {
       },
       animation: {
         'pulse-glow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'neural-fire': 'neuralFire 3s ease-in-out infinite',
+        'neural-fire': 'neuralFire 6s ease-in-out infinite',
       },
       keyframes: {
         neuralFire: {
-          '0%, 100%': { opacity: '0.5', transform: 'scale(1)' },
-          '50%': { opacity: '1', transform: 'scale(1.05)' },
+          '0%, 100%': { opacity: '0.95', transform: 'scale(1)' },
+          '50%': { opacity: '1', transform: 'scale(1.01)' },
         }
+      },
+      container: {
+        center: true,
+        padding: '1rem',
       }
     },
   },

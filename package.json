@@ -1,7 +1,8 @@
 {
-    "name": "tinder-mvp",
+    "name": "forge.ai",
     "private": true,
-    "version": "0.0.0",
+    "version": "1.0.0",
+    "description": "Transmute domain knowledge into evolving AI intelligence",
     "type": "module",
     "scripts": {
         "dev": "vite",
