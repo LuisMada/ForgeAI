@@ -1,23 +1,12 @@
 import { useState } from 'react'
 
 const SAMPLE_CONTEXTS = [
+  
   {
     name: "Healthcare Workflow Documentation",
     type: "Internal Docs",
     domain: "Healthcare Operations",
     content: "Documentation of patient intake processes, nurse scheduling conflicts, insurance verification bottlenecks, and electronic health record inefficiencies across 3 hospitals. Notable pain points include 40% of nurses spending 2+ hours daily on administrative tasks, insurance verification taking 24-72 hours causing treatment delays, and patient data scattered across 7 different systems requiring manual reconciliation."
-  },
-  {
-    name: "Supply Chain Analysis Report", 
-    type: "Research",
-    domain: "Logistics & Manufacturing",
-    content: "Analysis of last-mile delivery challenges in urban environments, focusing on driver shortage (15% increase in turnover), inventory management failures (23% of items overstocked while 18% understocked), and real-time tracking limitations. Key finding: manual dispatch routing wastes 35% of delivery capacity, and customer communication gaps lead to 28% failed first-delivery attempts."
-  },
-  {
-    name: "Financial Services Compliance Notes",
-    type: "Meeting Transcripts",
-    domain: "FinTech Regulatory",
-    content: "Notes from compliance meetings discussing KYC verification delays (average 3-5 business days), manual AML screening processes requiring 4 FTE resources, and regulatory reporting consuming 60+ hours monthly per compliance officer. Major friction: customer onboarding drops 45% after day 2 due to verification delays, and audit preparation requires 200+ man-hours quarterly."
   }
 ]
 
