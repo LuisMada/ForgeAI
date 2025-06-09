@@ -54,7 +54,7 @@ function AgentSoulDerivation({ compressedContext, chosenAgent, onComplete }) {
   if (error) {
     return (
       <div className="void-panel neural-glow">
-        <h2 className="text-2xl font-bold text-plasma mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-plasma mb-6">
           ⚠️ Soul Derivation Error
         </h2>
         
@@ -67,7 +67,7 @@ function AgentSoulDerivation({ compressedContext, chosenAgent, onComplete }) {
 
         <button
           onClick={handleRetry}
-          className="w-full py-3 px-6 bg-plasma hover:bg-plasma/80 rounded-lg font-semibold transition-colors"
+          className="w-full py-3 px-6 bg-plasma hover:bg-plasma/80 rounded-lg font-semibold transition-colors min-h-[48px]"
         >
           🔄 Retry Soul Derivation
         </button>
@@ -78,20 +78,20 @@ function AgentSoulDerivation({ compressedContext, chosenAgent, onComplete }) {
   if (isDeriving) {
     return (
       <div className="void-panel neural-glow text-center">
-        <h2 className="text-2xl font-bold text-synapse mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-synapse mb-6 sm:mb-8">
           4️⃣ Agent Soul Derivation
         </h2>
         
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="relative">
-            <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-plasma"></div>
+            <div className="inline-block animate-spin rounded-full h-12 sm:h-16 w-12 sm:w-16 border-b-4 border-plasma"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-8 h-8 bg-synapse rounded-full animate-neural-fire"></div>
+              <div className="w-6 sm:w-8 h-6 sm:h-8 bg-synapse rounded-full animate-neural-fire"></div>
             </div>
           </div>
         </div>
 
-        <div className="text-lg text-white mb-4">
+        <div className="text-base sm:text-lg text-white mb-4">
           {derivationSteps[currentStep]}
         </div>
 
@@ -102,7 +102,7 @@ function AgentSoulDerivation({ compressedContext, chosenAgent, onComplete }) {
           ></div>
         </div>
 
-        <p className="text-gray-400">
+        <p className="text-gray-400 px-4">
           Giving {chosenAgent.agent_name} its spirit and behavioral mind...
         </p>
       </div>
@@ -112,7 +112,7 @@ function AgentSoulDerivation({ compressedContext, chosenAgent, onComplete }) {
   return (
     <div className="void-panel neural-glow">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-synapse mb-2">
+        <h2 className="text-xl sm:text-2xl font-bold text-synapse mb-2">
           🧠 {chosenAgent.agent_name} - Soul Derived
         </h2>
         <p className="text-gray-400">
@@ -121,9 +121,9 @@ function AgentSoulDerivation({ compressedContext, chosenAgent, onComplete }) {
       </div>
 
       {/* Agent Overview */}
-      <div className="bg-gradient-to-br from-neural to-void border border-synapse/30 rounded-lg p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-white">{chosenAgent.agent_name}</h3>
+      <div className="bg-gradient-to-br from-neural to-void border border-synapse/30 rounded-lg p-4 sm:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+          <h3 className="text-lg sm:text-xl font-bold text-white break-words">{chosenAgent.agent_name}</h3>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
             <span className="text-green-400 text-sm">SOUL ACTIVE</span>
@@ -139,7 +139,7 @@ function AgentSoulDerivation({ compressedContext, chosenAgent, onComplete }) {
       </div>
 
       {/* Soul Characteristics */}
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
         
         <div className="bg-neural/50 p-4 rounded-lg">
           <h4 className="text-red-400 font-semibold mb-3">🔥 Emotional Driver</h4>
@@ -175,8 +175,8 @@ function AgentSoulDerivation({ compressedContext, chosenAgent, onComplete }) {
         <ul className="space-y-2">
           {agentSoul.conversation_rules.map((rule, index) => (
             <li key={index} className="text-sm text-gray-300 flex items-start">
-              <span className="text-synapse mr-2">{index + 1}.</span>
-              {rule}
+              <span className="text-synapse mr-2 flex-shrink-0">{index + 1}.</span>
+              <span>{rule}</span>
             </li>
           ))}
         </ul>
@@ -203,7 +203,7 @@ function AgentSoulDerivation({ compressedContext, chosenAgent, onComplete }) {
 
       <button
         onClick={handleContinue}
-        className="w-full py-3 px-6 bg-gradient-to-r from-synapse to-plasma hover:from-synapse/80 hover:to-plasma/80 rounded-lg font-semibold transition-all transform hover:scale-105"
+        className="w-full py-3 px-6 bg-gradient-to-r from-synapse to-plasma hover:from-synapse/80 hover:to-plasma/80 rounded-lg font-semibold transition-all transform hover:scale-105 min-h-[48px]"
       >
         💬 Start Working Together →
       </button>

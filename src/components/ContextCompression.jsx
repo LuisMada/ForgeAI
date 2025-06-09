@@ -55,7 +55,7 @@ function ContextCompression({ contextRaw, onComplete }) {
   if (error) {
     return (
       <div className="void-panel neural-glow">
-        <h2 className="text-2xl font-bold text-plasma mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-plasma mb-6">
           ⚠️ Compression Error
         </h2>
         
@@ -68,7 +68,7 @@ function ContextCompression({ contextRaw, onComplete }) {
 
         <button
           onClick={handleRetry}
-          className="w-full py-3 px-6 bg-plasma hover:bg-plasma/80 rounded-lg font-semibold transition-colors"
+          className="w-full py-3 px-6 bg-plasma hover:bg-plasma/80 rounded-lg font-semibold transition-colors min-h-[48px]"
         >
           🔄 Retry Compression
         </button>
@@ -79,15 +79,15 @@ function ContextCompression({ contextRaw, onComplete }) {
   if (isCompressing) {
     return (
       <div className="void-panel neural-glow text-center">
-        <h2 className="text-2xl font-bold text-synapse mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-synapse mb-6 sm:mb-8">
           2️⃣ Context Compression Engine
         </h2>
         
-        <div className="mb-8">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-plasma"></div>
+        <div className="mb-6 sm:mb-8">
+          <div className="inline-block animate-spin rounded-full h-12 sm:h-16 w-12 sm:w-16 border-b-4 border-plasma"></div>
         </div>
 
-        <div className="text-lg text-white mb-4">
+        <div className="text-base sm:text-lg text-white mb-4">
           {compressionSteps[currentStep]}
         </div>
 
@@ -98,7 +98,7 @@ function ContextCompression({ contextRaw, onComplete }) {
           ></div>
         </div>
 
-        <p className="text-gray-400">
+        <p className="text-gray-400 px-4">
           Extracting startup-relevant intelligence only...
         </p>
       </div>
@@ -108,7 +108,7 @@ function ContextCompression({ contextRaw, onComplete }) {
   return (
     <div className="void-panel neural-glow">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-synapse mb-2">
+        <h2 className="text-xl sm:text-2xl font-bold text-synapse mb-2">
           ⚡ Context Intelligence Extracted
         </h2>
         <p className="text-gray-400">
@@ -116,16 +116,16 @@ function ContextCompression({ contextRaw, onComplete }) {
         </p>
       </div>
       
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
         
         {/* Pain Points */}
         <div className="bg-neural/50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-red-400 mb-3">🔥 Pain Points</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-red-400 mb-3">🔥 Pain Points</h3>
           <ul className="space-y-2">
             {compressedData.painPoints.map((pain, index) => (
               <li key={index} className="text-sm text-gray-300 flex items-start">
-                <span className="text-red-400 mr-2">•</span>
-                {pain}
+                <span className="text-red-400 mr-2 flex-shrink-0">•</span>
+                <span>{pain}</span>
               </li>
             ))}
           </ul>
@@ -133,12 +133,12 @@ function ContextCompression({ contextRaw, onComplete }) {
 
         {/* Tensions */}
         <div className="bg-neural/50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-orange-400 mb-3">⚡ Tensions</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-orange-400 mb-3">⚡ Tensions</h3>
           <ul className="space-y-2">
             {compressedData.tensions.map((tension, index) => (
               <li key={index} className="text-sm text-gray-300 flex items-start">
-                <span className="text-orange-400 mr-2">•</span>
-                {tension}
+                <span className="text-orange-400 mr-2 flex-shrink-0">•</span>
+                <span>{tension}</span>
               </li>
             ))}
           </ul>
@@ -146,12 +146,12 @@ function ContextCompression({ contextRaw, onComplete }) {
 
         {/* Inefficiencies */}
         <div className="bg-neural/50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-yellow-400 mb-3">🐌 Inefficiencies</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-yellow-400 mb-3">🐌 Inefficiencies</h3>
           <ul className="space-y-2">
             {compressedData.inefficiencies.map((inefficiency, index) => (
               <li key={index} className="text-sm text-gray-300 flex items-start">
-                <span className="text-yellow-400 mr-2">•</span>
-                {inefficiency}
+                <span className="text-yellow-400 mr-2 flex-shrink-0">•</span>
+                <span>{inefficiency}</span>
               </li>
             ))}
           </ul>
@@ -159,12 +159,12 @@ function ContextCompression({ contextRaw, onComplete }) {
 
         {/* Constraints */}
         <div className="bg-neural/50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-blue-400 mb-3">🔒 Constraints</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-blue-400 mb-3">🔒 Constraints</h3>
           <ul className="space-y-2">
             {compressedData.constraints.map((constraint, index) => (
               <li key={index} className="text-sm text-gray-300 flex items-start">
-                <span className="text-blue-400 mr-2">•</span>
-                {constraint}
+                <span className="text-blue-400 mr-2 flex-shrink-0">•</span>
+                <span>{constraint}</span>
               </li>
             ))}
           </ul>
@@ -172,12 +172,12 @@ function ContextCompression({ contextRaw, onComplete }) {
 
         {/* Underutilized Assets */}
         <div className="bg-neural/50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-green-400 mb-3">💎 Underutilized Assets</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-green-400 mb-3">💎 Underutilized Assets</h3>
           <ul className="space-y-2">
             {compressedData.underutilizedAssets.map((asset, index) => (
               <li key={index} className="text-sm text-gray-300 flex items-start">
-                <span className="text-green-400 mr-2">•</span>
-                {asset}
+                <span className="text-green-400 mr-2 flex-shrink-0">•</span>
+                <span>{asset}</span>
               </li>
             ))}
           </ul>
@@ -185,12 +185,12 @@ function ContextCompression({ contextRaw, onComplete }) {
 
         {/* Unmet Needs */}
         <div className="bg-neural/50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-purple-400 mb-3">🎯 Unmet Needs</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-purple-400 mb-3">🎯 Unmet Needs</h3>
           <ul className="space-y-2">
             {compressedData.unmetNeeds.map((need, index) => (
               <li key={index} className="text-sm text-gray-300 flex items-start">
-                <span className="text-purple-400 mr-2">•</span>
-                {need}
+                <span className="text-purple-400 mr-2 flex-shrink-0">•</span>
+                <span>{need}</span>
               </li>
             ))}
           </ul>
@@ -199,17 +199,17 @@ function ContextCompression({ contextRaw, onComplete }) {
       </div>
 
       {/* Market Intelligence */}
-      <div className="flex justify-between items-center mb-6 p-4 bg-void/50 rounded-lg">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 p-4 bg-void/50 rounded-lg gap-4">
         <div className="text-center">
-          <div className="text-2xl font-bold text-synapse">{compressedData.domain}</div>
+          <div className="text-lg sm:text-2xl font-bold text-synapse break-words">{compressedData.domain}</div>
           <div className="text-xs text-gray-400">Domain Focus</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-plasma">{compressedData.marketSize}</div>
+          <div className="text-lg sm:text-2xl font-bold text-plasma">{compressedData.marketSize}</div>
           <div className="text-xs text-gray-400">Market Size</div>
         </div>
         <div className="text-center">
-          <div className={`text-2xl font-bold ${
+          <div className={`text-lg sm:text-2xl font-bold ${
             compressedData.urgency === 'high' ? 'text-red-400' :
             compressedData.urgency === 'medium' ? 'text-yellow-400' : 'text-green-400'
           }`}>
@@ -221,7 +221,7 @@ function ContextCompression({ contextRaw, onComplete }) {
 
       <button
         onClick={handleContinue}
-        className="w-full py-3 px-6 bg-gradient-to-r from-synapse to-plasma hover:from-synapse/80 hover:to-plasma/80 rounded-lg font-semibold transition-all transform hover:scale-105"
+        className="w-full py-3 px-6 bg-gradient-to-r from-synapse to-plasma hover:from-synapse/80 hover:to-plasma/80 rounded-lg font-semibold transition-all transform hover:scale-105 min-h-[48px]"
       >
         🧬 Generate Agent Candidates →
       </button> 

@@ -95,9 +95,9 @@ What would you like to work on together? I can help with strategy, execution, pr
 
   return (
     <div className="void-panel neural-glow">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-synapse mb-1">
+          <h2 className="text-xl sm:text-2xl font-bold text-synapse mb-1">
             5️⃣ {agent.agent_name}
           </h2>
           <p className="text-gray-400 text-sm">
@@ -112,7 +112,7 @@ What would you like to work on together? I can help with strategy, execution, pr
 
       {/* Agent Profile Card */}
       <div className="bg-gradient-to-r from-synapse/10 to-plasma/10 border border-synapse/30 rounded-lg p-4 mb-6">
-        <div className="grid md:grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
           <div>
             <span className="text-synapse font-semibold">Focus:</span>
             <p className="text-gray-300">{agent.problem}</p>
@@ -129,14 +129,14 @@ What would you like to work on together? I can help with strategy, execution, pr
       </div>
 
       {/* Chat Messages */}
-      <div className="bg-neural/50 rounded-lg border border-gray-600 mb-4" style={{ height: '400px' }}>
-        <div className="h-full overflow-y-auto p-4 space-y-4">
+      <div className="bg-neural/50 rounded-lg border border-gray-600 mb-4" style={{ height: window.innerWidth < 768 ? '300px' : '400px' }}>
+        <div className="h-full overflow-y-auto p-3 sm:p-4 space-y-4">
           {messages.map((message, index) => (
             <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-3xl p-3 rounded-lg ${
+              <div className={`max-w-[85%] sm:max-w-3xl p-3 rounded-lg ${
                 message.role === 'user' 
-                  ? 'bg-synapse text-white ml-12' 
-                  : 'bg-void border border-plasma/30 text-gray-100 mr-12'
+                  ? 'bg-synapse text-white' 
+                  : 'bg-void border border-plasma/30 text-gray-100'
               }`}>
                 {message.role === 'agent' && (
                   <div className="text-plasma text-xs font-semibold mb-1">{agent.agent_name}</div>
@@ -153,7 +153,7 @@ What would you like to work on together? I can help with strategy, execution, pr
           
           {isThinking && (
             <div className="flex justify-start">
-              <div className="bg-void border border-plasma/30 text-gray-100 mr-12 p-3 rounded-lg">
+              <div className="bg-void border border-plasma/30 text-gray-100 p-3 rounded-lg max-w-[85%]">
                 <div className="text-plasma text-xs font-semibold mb-1">{agent.agent_name}</div>
                 <div className="flex items-center space-x-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-plasma"></div>
@@ -168,65 +168,65 @@ What would you like to work on together? I can help with strategy, execution, pr
       </div>
 
       {/* Input Area */}
-      <div className="flex gap-3 mb-6">
+      <div className="flex gap-2 sm:gap-3 mb-6">
         <textarea
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder="Ask your AI cofounder anything about strategy, execution, problems to solve..."
-          className="flex-1 p-3 bg-neural border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-synapse focus:outline-none resize-none"
+          className="flex-1 p-3 bg-neural border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-synapse focus:outline-none resize-none text-sm"
           rows="3"
           disabled={isThinking}
         />
         <button
           onClick={handleSendMessage}
           disabled={!inputMessage.trim() || isThinking}
-          className="px-6 py-3 bg-synapse hover:bg-synapse/80 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition-all self-end"
+          className="px-4 sm:px-6 py-3 bg-synapse hover:bg-synapse/80 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition-all self-end min-h-[48px]"
         >
           {isThinking ? '🤔' : '📤'}
         </button>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-6">
         <button
           onClick={() => setInputMessage("Help me validate this startup idea...")}
-          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-sm transition-all"
+          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-xs sm:text-sm transition-all min-h-[48px]"
         >
           💡 Validate Idea
         </button>
         <button
           onClick={() => setInputMessage("What should my MVP look like?")}
-          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-sm transition-all"
+          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-xs sm:text-sm transition-all min-h-[48px]"
         >
           🛠️ Plan MVP
         </button>
         <button
           onClick={() => setInputMessage("How should I approach go-to-market?")}
-          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-sm transition-all"
+          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-xs sm:text-sm transition-all min-h-[48px]"
         >
           🚀 Go-to-Market
         </button>
         <button
           onClick={() => setInputMessage("What are the biggest risks I should watch out for?")}
-          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-sm transition-all"
+          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-xs sm:text-sm transition-all min-h-[48px]"
         >
           ⚠️ Risk Analysis
         </button>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <button
           onClick={exportConversation}
-          className="flex-1 py-3 px-6 bg-void hover:bg-void/80 border border-gray-600 hover:border-plasma/50 rounded-lg font-semibold transition-all"
+          className="flex-1 py-3 px-6 bg-void hover:bg-void/80 border border-gray-600 hover:border-plasma/50 rounded-lg font-semibold transition-all min-h-[48px]"
         >
           💾 Export Chat
         </button>
         
         <button
           onClick={onReset}
-          className="flex-1 py-3 px-6 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg font-semibold transition-all"
+          className="flex-1 py-3 px-6 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg font-semibold transition-all min-h-[48px]"
         >
           🔄 Create New Agent
         </button>
@@ -235,7 +235,7 @@ What would you like to work on together? I can help with strategy, execution, pr
       {/* Agent Soul Summary */}
       <div className="mt-6 p-4 bg-neural/30 rounded-lg border border-gray-700">
         <h4 className="text-plasma font-semibold mb-2">🧠 Agent Personality</h4>
-        <div className="grid md:grid-cols-2 gap-4 text-xs text-gray-400">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs text-gray-400">
           <div>
             <span className="text-synapse">Emotion:</span> {soul.emotion}
           </div>

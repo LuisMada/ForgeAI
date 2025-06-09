@@ -74,7 +74,7 @@ function AgentGeneration({ compressedContext, onAgentsGenerated, onAgentChosen }
   if (error) {
     return (
       <div className="void-panel neural-glow">
-        <h2 className="text-2xl font-bold text-plasma mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-plasma mb-6">
           ⚠️ Agent Generation Error
         </h2>
         
@@ -87,7 +87,7 @@ function AgentGeneration({ compressedContext, onAgentsGenerated, onAgentChosen }
 
         <button
           onClick={handleRegenerate}
-          className="w-full py-3 px-6 bg-plasma hover:bg-plasma/80 rounded-lg font-semibold transition-colors"
+          className="w-full py-3 px-6 bg-plasma hover:bg-plasma/80 rounded-lg font-semibold transition-colors min-h-[48px]"
         >
           🔄 Regenerate Agents
         </button>
@@ -98,20 +98,20 @@ function AgentGeneration({ compressedContext, onAgentsGenerated, onAgentChosen }
   if (isGenerating) {
     return (
       <div className="void-panel neural-glow text-center">
-        <h2 className="text-2xl font-bold text-synapse mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-synapse mb-6 sm:mb-8">
           3️⃣ Agent Archetype Generation
         </h2>
         
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="relative">
-            <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-plasma"></div>
+            <div className="inline-block animate-spin rounded-full h-12 sm:h-16 w-12 sm:w-16 border-b-4 border-plasma"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-8 h-8 bg-synapse rounded-full animate-pulse-glow"></div>
+              <div className="w-6 sm:w-8 h-6 sm:h-8 bg-synapse rounded-full animate-pulse-glow"></div>
             </div>
           </div>
         </div>
 
-        <div className="text-lg text-white mb-4">
+        <div className="text-base sm:text-lg text-white mb-4">
           {generationPhases[currentPhase]}
         </div>
 
@@ -122,7 +122,7 @@ function AgentGeneration({ compressedContext, onAgentsGenerated, onAgentChosen }
           ></div>
         </div>
 
-        <p className="text-gray-400">
+        <p className="text-gray-400 px-4">
           Forging multiple startup minds from one context...
         </p>
       </div>
@@ -132,7 +132,7 @@ function AgentGeneration({ compressedContext, onAgentsGenerated, onAgentChosen }
   return (
     <div className="void-panel neural-glow">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-synapse mb-2">
+        <h2 className="text-xl sm:text-2xl font-bold text-synapse mb-2">
           🎯 Choose Your AI Cofounder
         </h2>
         <p className="text-gray-400">
@@ -141,11 +141,11 @@ function AgentGeneration({ compressedContext, onAgentsGenerated, onAgentChosen }
       </div>
 
       {/* Agent Cards */}
-      <div className="grid gap-6 mb-8">
+      <div className="grid gap-4 sm:gap-6 mb-6 sm:mb-8">
         {agents.map((agent, index) => (
           <div 
             key={index}
-            className={`p-6 rounded-lg border-2 cursor-pointer transition-all hover:scale-[1.02] ${
+            className={`p-4 sm:p-6 rounded-lg border-2 cursor-pointer transition-all hover:scale-[1.01] ${
               selectedAgent === agent
                 ? 'border-synapse bg-synapse/10 shadow-lg shadow-synapse/20'
                 : agent.mode === 'edge'
@@ -155,16 +155,16 @@ function AgentGeneration({ compressedContext, onAgentsGenerated, onAgentChosen }
             onClick={() => handleAgentSelect(agent)}
           >
             <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{getModeIcon(agent.mode)}</span>
-                <div>
-                  <h3 className="text-xl font-bold text-white">{agent.agent_name}</h3>
-                  <div className="flex items-center gap-4 mt-1">
+              <div className="flex items-center gap-3 flex-1">
+                <span className="text-xl sm:text-2xl">{getModeIcon(agent.mode)}</span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg sm:text-xl font-bold text-white break-words">{agent.agent_name}</h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
                     <span className={`text-sm font-medium ${getRiskColor(agent.risk_level)}`}>
                       {agent.risk_level.toUpperCase()} RISK
                     </span>
                     {agent.mode === 'edge' && (
-                      <span className="text-xs px-2 py-1 bg-red-500/20 text-red-400 rounded-full">
+                      <span className="text-xs px-2 py-1 bg-red-500/20 text-red-400 rounded-full w-fit">
                         ETHICAL EDGE
                       </span>
                     )}
@@ -172,13 +172,13 @@ function AgentGeneration({ compressedContext, onAgentsGenerated, onAgentChosen }
                 </div>
               </div>
               {selectedAgent === agent && (
-                <div className="w-6 h-6 bg-synapse rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 bg-synapse rounded-full flex items-center justify-center flex-shrink-0 ml-2">
                   <span className="text-white text-sm">✓</span>
                 </div>
               )}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
               <div>
                 <h4 className="text-plasma font-semibold mb-2">🎯 Target & Problem</h4>
                 <div className="text-sm text-gray-300 space-y-1">
@@ -219,10 +219,10 @@ function AgentGeneration({ compressedContext, onAgentsGenerated, onAgentChosen }
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <button
           onClick={handleRegenerate}
-          className="flex-1 py-3 px-6 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg font-semibold transition-all"
+          className="flex-1 py-3 px-6 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg font-semibold transition-all min-h-[48px]"
         >
           🔄 Generate New Agents
         </button>
@@ -230,7 +230,7 @@ function AgentGeneration({ compressedContext, onAgentsGenerated, onAgentChosen }
         <button
           onClick={handleChooseAgent}
           disabled={!selectedAgent}
-          className="flex-1 py-3 px-6 bg-gradient-to-r from-synapse to-plasma hover:from-synapse/80 hover:to-plasma/80 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition-all transform hover:scale-105 disabled:hover:scale-100"
+          className="flex-1 py-3 px-6 bg-gradient-to-r from-synapse to-plasma hover:from-synapse/80 hover:to-plasma/80 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition-all transform hover:scale-105 disabled:hover:scale-100 min-h-[48px]"
         >
           🧬 Derive Agent Soul →
         </button>

@@ -94,31 +94,31 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neural via-void to-neural">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl">
         
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-synapse to-plasma bg-clip-text text-transparent mb-4">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold bg-gradient-to-r from-synapse to-plasma bg-clip-text text-transparent mb-3 sm:mb-4">
             Durinthal
           </h1>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-base sm:text-lg px-4">
             Transform knowledge into autonomous founder minds
           </p>
         </div>
 
         {/* Progress Flow */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-2">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex justify-between items-center mb-2 px-2">
             {Object.values(STAGES).map((stage, index) => (
               <div key={stage} className="flex items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-300
+                <div className={`w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-300
                   ${Object.values(STAGES).indexOf(currentStage) >= index 
                     ? 'bg-synapse text-white shadow-lg shadow-synapse/30' 
                     : 'bg-gray-700 text-gray-400'}`}>
                   {index + 1}
                 </div>
                 {index < Object.values(STAGES).length - 1 && (
-                  <div className={`w-16 h-0.5 mx-2 transition-colors duration-300
+                  <div className={`w-8 sm:w-16 h-0.5 mx-1 sm:mx-2 transition-colors duration-300
                     ${Object.values(STAGES).indexOf(currentStage) > index 
                       ? 'bg-synapse shadow-sm shadow-synapse/30' 
                       : 'bg-gray-700'}`} />
@@ -126,7 +126,7 @@ function App() {
               </div>
             ))}
           </div>
-          <div className="text-center text-sm text-gray-400">
+          <div className="text-center text-xs sm:text-sm text-gray-400">
             {stageNames[currentStage]} Phase
           </div>
         </div>
