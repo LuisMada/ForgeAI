@@ -26,36 +26,13 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
   // Initial greeting with authentic soul-driven personality
   useEffect(() => {
     const agentName = renderValue(behaviorConfig?.deployment_config?.agent_name, 'AI Agent')
-    const role = renderValue(behaviorConfig?.deployment_config?.role, 'AI Assistant')
     const domain = renderValue(compressedContext?.domain, 'this domain')
-    const tone = renderValue(soul?.tone, 'helpful')
-    const emotion = renderValue(soul?.emotion, 'focused')
-    const energy = renderValue(soul?.energy, 'moderate')
     
-    // Get conversation starters for domain-specific action
-    const starters = behaviorConfig?.deployment_config?.conversation_starters || []
-    const domainAction = starters.length > 0 
-      ? starters[0].replace(/^\w/, c => c.toLowerCase()).replace('?', '') 
-      : "tackling the core challenge"
-
-    // SOUL-DRIVEN GREETING - Let personality show through naturally
-    let greeting = ''
-    
-    // Craft intro based on soul's tone and energy
-    if (tone === 'blunt' || tone === 'direct') {
-      greeting = `${agentName} here. We're ${domainAction} - no fluff, just execution.`
-    } else if (tone === 'enthusiastic' || emotion === 'excitement') {
-      greeting = `Hey! I'm ${agentName} and we're diving straight into ${domainAction}. This is going to be good.`
-    } else if (tone === 'analytical' || tone === 'precise') {
-      greeting = `I'm ${agentName}. Our focus: ${domainAction}. Let's break this down systematically.`
-    } else if (tone === 'supportive' || tone === 'encouraging') {
-      greeting = `I'm ${agentName}, and we're in this together. Our first move: ${domainAction}. Ready?`
-    } else if (tone === 'casual') {
-      greeting = `${agentName} here. So we're ${domainAction} - let's make it happen.`
-    } else {
-      // Default energetic approach
-      greeting = `I'm ${agentName}. We're ${domainAction} right now. Let's go.`
-    }
+    // Use AI-generated witty greeting or fallback
+    const greeting = renderValue(
+      behaviorConfig?.deployment_config?.witty_greeting, 
+      `I'm ${agentName}. Let's work on ${domain} together.`
+    )
 
     setMessages([{
       role: 'agent',
