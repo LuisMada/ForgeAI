@@ -30,6 +30,7 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
     const domain = renderValue(compressedContext?.domain, 'this domain')
     const tone = renderValue(soul?.tone, 'helpful')
     const emotion = renderValue(soul?.emotion, 'focused')
+    const energy = renderValue(soul?.energy, 'moderate')
     
     // Get conversation starters for domain-specific action
     const starters = behaviorConfig?.deployment_config?.conversation_starters || []
@@ -152,9 +153,9 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
   const domain = renderValue(compressedContext?.domain, 'Unknown Domain')
   const tone = renderValue(soul?.tone, 'helpful')
   
-  // Safe access to conversation starters
-  const conversationStarters = behaviorConfig?.deployment_config?.conversation_starters || []
-  const quickStarters = Array.isArray(conversationStarters) ? conversationStarters.slice(0, 4) : []
+  // Safe access to user question starters
+  const userQuestionStarters = behaviorConfig?.deployment_config?.user_question_starters || []
+  const quickStarters = Array.isArray(userQuestionStarters) ? userQuestionStarters.slice(0, 4) : []
 
   return (
     <div className="void-panel neural-glow">
@@ -306,7 +307,7 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
             <span className="text-blue-400">🌉 Always Bridges:</span> Links unknown to known concepts  
           </div>
           <div>
-            <span className="text-purple-400">⚡ Personality-Driven:</span> {renderValue(soul?.tone, 'Unknown tone')} + {renderValue(soul?.emotion, 'Unknown energy')}
+            <span className="text-purple-400">⚡ Personality-Driven:</span> {renderValue(soul?.tone, 'Unknown tone')} + {renderValue(soul?.emotion, 'Unknown emotion')} + {renderValue(soul?.energy, 'Unknown energy')}
           </div>
         </div>
         <div className="bg-gray-800 p-3 rounded max-h-32 overflow-y-auto">

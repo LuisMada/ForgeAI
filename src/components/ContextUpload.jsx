@@ -6,24 +6,6 @@ const SAMPLE_CONTEXTS = [
     type: "Video Transcript",
     domain: "AI Technology",
     content: "Transcript from latest AI developments video covering OpenAI's new models, Google's AI research updates, Microsoft's enterprise AI tools, regulatory discussions in EU, and startup funding trends. Key topics include model capabilities, pricing changes, ethical considerations, and market competition. Discusses technical breakthroughs, business applications, and future predictions for AI adoption across industries."
-  },
-  {
-    name: "React.js Documentation", 
-    type: "Technical Documentation",
-    domain: "Web Development",
-    content: "Official React documentation covering hooks, component patterns, state management, performance optimization, and best practices. Includes code examples, API references, migration guides, and troubleshooting common issues. Covers beginner to advanced concepts including custom hooks, context API, suspense, and concurrent features."
-  },
-  {
-    name: "Marketing Strategy Workshop Notes",
-    type: "Workshop Notes", 
-    domain: "Digital Marketing",
-    content: "Notes from 3-day marketing workshop covering customer acquisition strategies, conversion optimization, A/B testing methodologies, social media advertising, content marketing frameworks, and analytics interpretation. Includes case studies from successful campaigns, budget allocation strategies, and ROI measurement techniques."
-  },
-  {
-    name: "Mental Health Research Findings",
-    type: "Research Data",
-    domain: "Psychology",
-    content: "Research findings on anxiety patterns in Generation Z students. Key themes include social media comparison stress, academic pressure intensified by uncertain job markets, identity formation challenges in digital spaces, and emotional numbness as a coping mechanism. Many report feeling 'stuck between being told they're resilient and feeling completely overwhelmed.'"
   }
 ]
 

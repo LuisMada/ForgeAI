@@ -219,14 +219,14 @@ function BehaviorRuleset({ compressedContext, chosenSoul, onComplete }) {
         </div>
       </div>
 
-      {/* Conversation Starters */}
-      {config.conversation_starters && (
+      {/* User Question Starters */}
+      {config.user_question_starters && (
         <div className="bg-neural/50 p-4 rounded-lg mb-6">
-          <h4 className="text-green-400 font-semibold mb-3">💬 Conversation Starters</h4>
+          <h4 className="text-green-400 font-semibold mb-3">💬 Sample Questions (Your POV)</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {renderArray(config.conversation_starters).slice(0, 4).map((starter, index) => (
+            {renderArray(config.user_question_starters).slice(0, 4).map((question, index) => (
               <div key={index} className="bg-void/50 p-3 rounded border border-gray-600">
-                <p className="text-gray-300 text-sm italic">"{starter}"</p>
+                <p className="text-gray-300 text-sm italic">"{question}"</p>
               </div>
             ))}
           </div>
