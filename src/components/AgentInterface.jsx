@@ -23,25 +23,26 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
     return String(value)
   }
 
-  // Initial greeting
+  // Initial greeting with directive start
   useEffect(() => {
     const agentName = renderValue(behaviorConfig?.deployment_config?.agent_name, 'AI Agent')
     const role = renderValue(behaviorConfig?.deployment_config?.role, 'AI Assistant')
     const domain = renderValue(compressedContext?.domain, 'this domain')
     
-    // Get a conversation starter if available
+    // Get conversation starters for domain-specific action
     const starters = behaviorConfig?.deployment_config?.conversation_starters || []
-    const randomStarter = starters.length > 0 
-      ? starters[Math.floor(Math.random() * starters.length)]
-      : "What would you like to know?"
+    const domainAction = starters.length > 0 
+      ? starters[0].replace(/^\w/, c => c.toLowerCase()).replace('?', '') // Convert to lowercase action
+      : "establishing our baseline framework"
 
-    const initialGreeting = `Hello! I'm ${agentName}, your ${role}. I specialize in ${domain} and I'm here to help you with questions and insights in this area.
+    // DIRECTIVE START with WE/US framing and content-grounded action
+    const directiveGreeting = `I'm ${agentName}, we're tackling this ${domain} challenge together. Let's begin with our most critical first move: ${domainAction}.
 
-${randomStarter}`
+Time to execute.`
 
     setMessages([{
       role: 'agent',
-      content: initialGreeting,
+      content: directiveGreeting,
       timestamp: new Date().toISOString()
     }])
   }, [soul, behaviorConfig, compressedContext])
@@ -280,13 +281,21 @@ ${randomStarter}`
 
       {/* Content Grounding Display */}
       <div className="bg-neural/30 rounded-lg border border-gray-700 p-4 mb-6">
-        <h4 className="text-green-400 font-semibold mb-2 text-sm">📚 Content Grounding</h4>
-        <div className="text-xs text-gray-400 mb-3">
-          <strong className="text-green-400">Agent Knowledge Source:</strong> This agent's responses are based entirely on your uploaded content.
+        <h4 className="text-green-400 font-semibold mb-2 text-sm">🧠 Agent Operational Philosophy</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-gray-400 mb-3">
+          <div>
+            <span className="text-green-400">✅ Never Blocks:</span> Always finds connecting principles
+          </div>
+          <div>
+            <span className="text-blue-400">🌉 Always Bridges:</span> Links unknown to known concepts  
+          </div>
+          <div>
+            <span className="text-purple-400">⚡ Personality-Driven:</span> {renderValue(soul?.tone, 'Unknown tone')} + {renderValue(soul?.emotion, 'Unknown energy')}
+          </div>
         </div>
         <div className="bg-gray-800 p-3 rounded max-h-32 overflow-y-auto">
           <p className="text-xs text-gray-300 leading-relaxed">
-            <strong className="text-blue-400">Uploaded Content Preview:</strong><br/>
+            <strong className="text-blue-400">Knowledge Base:</strong><br/>
             {originalContent?.content ? 
               (originalContent.content.length > 300 ? 
                 originalContent.content.substring(0, 300) + '...' : 
@@ -297,7 +306,7 @@ ${randomStarter}`
           </p>
         </div>
         <div className="mt-2 text-xs text-gray-500">
-          The agent can only discuss information contained in this uploaded content.
+          Agent adapts this knowledge using general principles that transfer across contexts.
         </div>
       </div>
 

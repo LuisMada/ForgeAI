@@ -191,16 +191,26 @@ function SoulGeneration({ compressedContext, onSoulsGenerated, onSoulChosen }) {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
               <div>
-                <h4 className="text-yellow-400 font-semibold mb-2">💬 Approach</h4>
+                <h4 className="text-yellow-400 font-semibold mb-2">💬 Personality Mechanics</h4>
                 <div className="text-sm text-gray-300 space-y-1">
-                  <div><span className="text-synapse">Response Style:</span> {renderValue(soul.response_approach)}</div>
-                  <div><span className="text-synapse">Specialization:</span> {renderValue(soul.specialization)}</div>
+                  <div><span className="text-synapse">Tone:</span> {renderValue(soul.tone)}</div>
+                  <div><span className="text-synapse">Energy:</span> {renderValue(soul.emotion)}</div>
+                  <div><span className="text-synapse">Response Length:</span> {renderValue(soul.conversation_unit_max)} sentences max</div>
                 </div>
               </div>
               <div>
-                <h4 className="text-green-400 font-semibold mb-2">🔄 Interaction Pattern</h4>
-                <p className="text-sm text-gray-300">{renderValue(soul.interaction_pattern)}</p>
+                <h4 className="text-green-400 font-semibold mb-2">🔄 Operational Behavior</h4>
+                <div className="text-sm text-gray-300 space-y-1">
+                  <div><span className="text-synapse">Unknown Requests:</span> {renderValue(soul.stall_recovery_protocol, 'Bridge with principles')}</div>
+                  <div><span className="text-synapse">Off-topic Handling:</span> {renderValue(soul.bad_input_response_style, 'Redirect adaptively')}</div>
+                </div>
               </div>
+            </div>
+
+            {/* Bridging Strategy */}
+            <div className="mb-4">
+              <h4 className="text-purple-400 font-semibold mb-2">🌉 Bridging Strategy</h4>
+              <p className="text-gray-300 text-sm">{renderValue(soul.bridging_strategy, 'Connects unfamiliar requests to known content')}</p>
             </div>
 
             {/* Content Boundaries */}
@@ -235,8 +245,11 @@ function SoulGeneration({ compressedContext, onSoulsGenerated, onSoulChosen }) {
 
             {/* Value Proposition */}
             <div className="bg-neural/30 rounded p-3">
-              <h4 className="text-purple-400 font-semibold mb-1 text-sm">💎 Value Proposition</h4>
-              <p className="text-xs text-gray-300">{renderValue(soul.value_proposition)}</p>
+              <h4 className="text-orange-400 font-semibold mb-1 text-sm">💎 Agent Philosophy</h4>
+              <p className="text-xs text-gray-300 mb-2">{renderValue(soul.value_proposition)}</p>
+              <div className="text-xs text-gray-400">
+                <span className="text-orange-400">Never blocks requests</span> • Always bridges gaps • Personality drives behavior
+              </div>
             </div>
           </div>
         ))}

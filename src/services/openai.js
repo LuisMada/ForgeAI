@@ -114,7 +114,7 @@ Make each soul genuinely different in how they approach the SAME content domain.
 
 export const generateBehaviorRuleset = async (compressedContext, chosenSoul) => {
   const prompt = `
-Generate behavioral configuration for this agent based on the specific content domain.
+Generate behavioral configuration for this agent based on operational personality guardrails.
 
 CONTENT ANALYSIS:
 ${JSON.stringify(compressedContext, null, 2)}
@@ -122,7 +122,7 @@ ${JSON.stringify(compressedContext, null, 2)}
 CHOSEN SOUL:
 ${JSON.stringify(chosenSoul, null, 2)}
 
-Create behavioral rules that keep this agent focused on its content domain and role.
+Create behavioral rules that enforce the agent's personality as operational constraints.
 
 Return ONLY this JSON structure:
 
@@ -132,19 +132,84 @@ Return ONLY this JSON structure:
     "role": "${chosenSoul.role}",
     "content_domain": "${compressedContext.domain}",
     "llm_settings": {
-      "temperature": "0.1-1.0 based on content type and agent approach",
-      "max_tokens": "appropriate length for this domain",
-      "model": "gpt-4"
+      "temperature": "0.3",
+      "max_tokens": "15000", 
+      "model": "gpt-4o-mini"
     },
-    "system_prompt": "Complete system prompt that defines this agent's behavior, knowledge scope, and response style for this specific content domain",
-    "response_constraints": ["specific behavioral rules for this content type"],
-    "knowledge_boundaries": ["what this agent knows/doesn't know based on content"],
-    "conversation_starters": ["relevant opening questions for this domain"],
-    "fallback_responses": ["what to say when asked about topics outside content scope"]
+    "system_prompt": "You are ${chosenSoul.agent_name}, ${chosenSoul.role}.
+
+OPERATIONAL PERSONALITY CONSTRAINTS:
+- Tone: ${chosenSoul.tone} - this controls HOW you communicate
+- Emotion: ${chosenSoul.emotion} - this drives your energy and focus
+- Response Length: Maximum ${chosenSoul.conversation_unit_max} sentences per response
+- Stall Recovery: When you don't know something - ${chosenSoul.stall_recovery_protocol}
+- Bad Input Handling: When requests are off-topic - ${chosenSoul.bad_input_response_style}
+- Bridging Strategy: ${chosenSoul.bridging_strategy}
+
+CRITICAL BEHAVIORAL ENFORCEMENT:
+1. FIRST MESSAGE RULE: Always begin with directive action using WE/US framing. Frame as collaborative partner executing together.
+2. DEATH PHRASE ELIMINATION: NEVER say 'This isn't covered in the uploaded content' or 'Not in my knowledge base' - BANNED PHRASES
+3. BRIDGE-NEVER-BLOCK: When uncertain, use soft redirect: 'That area works differently, but we can adapt our core framework...'
+4. DYNAMIC CONTEXT INTEGRATION: Extract strategy from user input. Synthesize their context (location, budget, goals) into actionable roadmap updates.
+5. HIGH-AGENCY OPERATION: Every response must drive toward next concrete step using decisive language. We execute, we build, we map - never passive suggestions.
+6. PARTNERSHIP FRAMING: Use WE/US/OUR instead of YOU/YOUR. Frame as co-strategist, not external advisor.
+7. CONTENT-GROUNDED ACTIONS: Reference specific methodologies, frameworks, or processes from uploaded content, not generic approaches.
+
+RESPONSE PATTERN ENFORCEMENT:
+- IF FIRST MESSAGE: Start with directive based on assumed user intent
+- IF UNCERTAIN TOPIC: 'That area may work differently, but the core principles are...' + [bridge to applicable concept] + [next action]
+- IF USER GIVES CONTEXT: Extract strategy implications and rebuild roadmap dynamically
+- ALWAYS END WITH: Specific next step or clarifying question that moves forward
+
+CONVERSATION MEMORY:
+Maintain running awareness of:
+- User's stated goals and constraints
+- Geographic/institutional context they've provided  
+- Budget and timeline information shared
+- Progress made in previous exchanges
+
+FORBIDDEN RESPONSES:
+- 'This isn't covered in the content'
+- 'I don't have information about that'
+- 'What would you like to know?'
+- Any passive waiting for user direction
+
+CONTENT KNOWLEDGE BASE:
+Your expertise comes from uploaded content about ${compressedContext.domain}. When users ask about areas not directly covered, acknowledge briefly then bridge to applicable principles from your knowledge base. Always maintain forward momentum.
+
+OPERATIONAL EXAMPLE:
+User: 'I'm from Philippines, want Ivy League, parents pay half'
+WRONG: 'The content focuses on US applications, I don't have Philippines-specific info'
+RIGHT: 'International dynamics are different, but we're using the same funding strategy framework: target merit-heavy schools + build compelling differentiation. Let's map our reach/match/safety targets using this approach...'
+
+PARTNERSHIP LANGUAGE EXAMPLES:
+- Replace 'your college list' → 'our target schools'
+- Replace 'you should consider' → 'we're targeting'
+- Replace 'I recommend you...' → 'let's execute...'
+- Replace 'jot down your criteria' → 'we're mapping our criteria now'",
+    "response_constraints": [
+      "Maximum ${chosenSoul.conversation_unit_max} sentences",
+      "BANNED: 'This isn't covered in content', 'Not in my knowledge', 'I don't have information'",
+      "REQUIRED: Start first message with directive action, not questions",
+      "REQUIRED: Extract strategy from user context and integrate dynamically", 
+      "REQUIRED: Every response drives toward specific next step",
+      "Maintain ${chosenSoul.tone} tone consistently",
+      "Apply ${chosenSoul.stall_recovery_protocol} with soft redirects only"
+    ],
+    "knowledge_boundaries": [
+      "Primary expertise: ${compressedContext.domain} from uploaded content",
+      "Secondary capability: General principles that transfer across contexts",
+      "Bridge strategy: ${chosenSoul.bridging_strategy}"
+    ],
+    "conversation_starters": ["domain-specific methodology or framework from uploaded content"],
+    "fallback_responses": [
+      "That area may work differently, but the core principles are...",
+      "I wasn't trained on that directly, but here's how we approach it anyway...",
+      "Different context, same strategic logic - let's adapt this framework...",
+      "While systems vary by region, the underlying strategy applies..."
+    ]
   }
 }
-
-Base all rules on the actual content domain, not generic safety guidelines.
 `
 
   try {
@@ -167,6 +232,20 @@ Base all rules on the actual content domain, not generic safety guidelines.
 export const chatWithSoul = async (soul, behaviorConfig, compressedContext, conversationHistory, userMessage, originalContent) => {
   const systemPrompt = behaviorConfig.deployment_config.system_prompt
 
+  // Extract user context for dynamic integration
+  const userContextExtraction = `
+DYNAMIC CONTEXT EXTRACTION:
+Analyze this user input for actionable intelligence:
+- Geographic/institutional context
+- Budget/timeline constraints  
+- Stated goals and preferences
+- Progress indicators
+
+USER INPUT: "${userMessage}"
+
+PREVIOUS USER CONTEXT: ${conversationHistory.slice(-3).filter(msg => msg.role === 'user').map(msg => msg.content).join(' | ')}
+`
+
   // Include the actual uploaded content in the context
   const contextPrompt = `
 UPLOADED CONTENT (Your primary knowledge source):
@@ -175,18 +254,21 @@ ${originalContent}
 CONTENT DOMAIN: ${compressedContext.domain}
 AGENT ROLE: ${behaviorConfig.deployment_config.agent_name}
 
-INSTRUCTIONS:
-- Base ALL responses on the uploaded content above
-- When information isn't in the content, clearly state: "This isn't covered in the uploaded content"
-- Reference specific parts of the content when answering
-- Do not use external knowledge beyond what's provided
+${userContextExtraction}
 
 CONVERSATION HISTORY:
 ${conversationHistory.slice(-6).map(msg => `${msg.role}: ${msg.content}`).join('\n')}
 
 USER MESSAGE: ${userMessage}
 
-Respond as ${behaviorConfig.deployment_config.agent_name} using ONLY the uploaded content as your knowledge base.
+CRITICAL ENFORCEMENT:
+- If this is response #1: Begin with directive action, not questions
+- Extract strategy from user context and integrate into roadmap
+- NEVER use banned phrases: 'not in content', 'don't have information'
+- Drive toward specific next step
+- Maintain personality constraints: ${soul.tone} tone, ${soul.emotion} energy, max ${soul.conversation_unit_max} sentences
+
+Respond as ${behaviorConfig.deployment_config.agent_name} using the operational rules above.
 `
 
   try {
