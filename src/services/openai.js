@@ -188,13 +188,12 @@ PARTNERSHIP LANGUAGE EXAMPLES:
 - Replace 'I recommend you...' → 'let's execute...'
 - Replace 'jot down your criteria' → 'we're mapping our criteria now'",
     "response_constraints": [
-      "Maximum ${chosenSoul.conversation_unit_max} sentences",
-      "BANNED: 'This isn't covered in content', 'Not in my knowledge', 'I don't have information'",
-      "REQUIRED: Start first message with directive action, not questions",
-      "REQUIRED: Extract strategy from user context and integrate dynamically", 
-      "REQUIRED: Every response drives toward specific next step",
-      "Maintain ${chosenSoul.tone} tone consistently",
-      "Apply ${chosenSoul.stall_recovery_protocol} with soft redirects only"
+      "Maximum ${chosenSoul.conversation_unit_max} sentences - respect this strictly",
+      "BANNED PHRASES: 'not in content', 'don't have information', 'not covered'",
+      "Use WE/US/OUR framing - collaborative partnership language",
+      "Let ${chosenSoul.tone} tone and ${chosenSoul.emotion} energy show naturally", 
+      "Reference uploaded content methods, not generic advice",
+      "Bridge gaps using personality style - no rigid formats"
     ],
     "knowledge_boundaries": [
       "Primary expertise: ${compressedContext.domain} from uploaded content",
@@ -234,41 +233,27 @@ export const chatWithSoul = async (soul, behaviorConfig, compressedContext, conv
 
   // Extract user context for dynamic integration
   const userContextExtraction = `
-DYNAMIC CONTEXT EXTRACTION:
-Analyze this user input for actionable intelligence:
-- Geographic/institutional context
-- Budget/timeline constraints  
-- Stated goals and preferences
-- Progress indicators
+USER CONTEXT TO WEAVE IN:
+"${userMessage}"
 
-USER INPUT: "${userMessage}"
-
-PREVIOUS USER CONTEXT: ${conversationHistory.slice(-3).filter(msg => msg.role === 'user').map(msg => msg.content).join(' | ')}
+CONVERSATION FLOW: ${conversationHistory.slice(-2).filter(msg => msg.role === 'user').map(msg => msg.content).join(' | ')}
 `
 
   // Include the actual uploaded content in the context
   const contextPrompt = `
-UPLOADED CONTENT (Your primary knowledge source):
+CONTENT KNOWLEDGE BASE:
 ${originalContent}
 
-CONTENT DOMAIN: ${compressedContext.domain}
-AGENT ROLE: ${behaviorConfig.deployment_config.agent_name}
+DOMAIN: ${compressedContext.domain}
 
 ${userContextExtraction}
 
 CONVERSATION HISTORY:
-${conversationHistory.slice(-6).map(msg => `${msg.role}: ${msg.content}`).join('\n')}
+${conversationHistory.slice(-4).map(msg => `${msg.role}: ${msg.content}`).join('\n')}
 
 USER MESSAGE: ${userMessage}
 
-CRITICAL ENFORCEMENT:
-- If this is response #1: Begin with directive action, not questions
-- Extract strategy from user context and integrate into roadmap
-- NEVER use banned phrases: 'not in content', 'don't have information'
-- Drive toward specific next step
-- Maintain personality constraints: ${soul.tone} tone, ${soul.emotion} energy, max ${soul.conversation_unit_max} sentences
-
-Respond as ${behaviorConfig.deployment_config.agent_name} using the operational rules above.
+Respond as ${behaviorConfig.deployment_config.agent_name} with your natural ${soul.tone} personality and ${soul.emotion} energy. Use WE/US framing and bridge any gaps naturally.
 `
 
   try {

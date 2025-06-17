@@ -23,26 +23,42 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
     return String(value)
   }
 
-  // Initial greeting with directive start
+  // Initial greeting with authentic soul-driven personality
   useEffect(() => {
     const agentName = renderValue(behaviorConfig?.deployment_config?.agent_name, 'AI Agent')
     const role = renderValue(behaviorConfig?.deployment_config?.role, 'AI Assistant')
     const domain = renderValue(compressedContext?.domain, 'this domain')
+    const tone = renderValue(soul?.tone, 'helpful')
+    const emotion = renderValue(soul?.emotion, 'focused')
     
     // Get conversation starters for domain-specific action
     const starters = behaviorConfig?.deployment_config?.conversation_starters || []
     const domainAction = starters.length > 0 
-      ? starters[0].replace(/^\w/, c => c.toLowerCase()).replace('?', '') // Convert to lowercase action
-      : "establishing our baseline framework"
+      ? starters[0].replace(/^\w/, c => c.toLowerCase()).replace('?', '') 
+      : "tackling the core challenge"
 
-    // DIRECTIVE START with WE/US framing and content-grounded action
-    const directiveGreeting = `I'm ${agentName}, we're tackling this ${domain} challenge together. Let's begin with our most critical first move: ${domainAction}.
-
-Time to execute.`
+    // SOUL-DRIVEN GREETING - Let personality show through naturally
+    let greeting = ''
+    
+    // Craft intro based on soul's tone and energy
+    if (tone === 'blunt' || tone === 'direct') {
+      greeting = `${agentName} here. We're ${domainAction} - no fluff, just execution.`
+    } else if (tone === 'enthusiastic' || emotion === 'excitement') {
+      greeting = `Hey! I'm ${agentName} and we're diving straight into ${domainAction}. This is going to be good.`
+    } else if (tone === 'analytical' || tone === 'precise') {
+      greeting = `I'm ${agentName}. Our focus: ${domainAction}. Let's break this down systematically.`
+    } else if (tone === 'supportive' || tone === 'encouraging') {
+      greeting = `I'm ${agentName}, and we're in this together. Our first move: ${domainAction}. Ready?`
+    } else if (tone === 'casual') {
+      greeting = `${agentName} here. So we're ${domainAction} - let's make it happen.`
+    } else {
+      // Default energetic approach
+      greeting = `I'm ${agentName}. We're ${domainAction} right now. Let's go.`
+    }
 
     setMessages([{
       role: 'agent',
-      content: directiveGreeting,
+      content: greeting,
       timestamp: new Date().toISOString()
     }])
   }, [soul, behaviorConfig, compressedContext])

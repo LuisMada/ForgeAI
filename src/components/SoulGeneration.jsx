@@ -73,20 +73,6 @@ function SoulGeneration({ compressedContext, onSoulsGenerated, onSoulChosen }) {
     return String(value)
   }
 
-  // Helper function to safely get nested properties
-  const safeGet = (obj, path, fallback = 'Not specified') => {
-    try {
-      const keys = path.split('.')
-      let result = obj
-      for (const key of keys) {
-        result = result?.[key]
-      }
-      return renderValue(result, fallback)
-    } catch {
-      return fallback
-    }
-  }
-
   if (error) {
     return (
       <div className="void-panel neural-glow">
@@ -193,9 +179,9 @@ function SoulGeneration({ compressedContext, onSoulsGenerated, onSoulChosen }) {
               <div>
                 <h4 className="text-yellow-400 font-semibold mb-2">💬 Personality Mechanics</h4>
                 <div className="text-sm text-gray-300 space-y-1">
-                  <div><span className="text-synapse">Tone:</span> {renderValue(soul.tone)}</div>
-                  <div><span className="text-synapse">Energy:</span> {renderValue(soul.emotion)}</div>
-                  <div><span className="text-synapse">Response Length:</span> {renderValue(soul.conversation_unit_max)} sentences max</div>
+                  <div><span className="text-synapse">Tone:</span> {renderValue(soul.tone, 'Not specified')}</div>
+                  <div><span className="text-synapse">Energy:</span> {renderValue(soul.emotion, 'Not specified')}</div>
+                  <div><span className="text-synapse">Response Length:</span> {renderValue(soul.conversation_unit_max, 'Not specified')} sentences max</div>
                 </div>
               </div>
               <div>
