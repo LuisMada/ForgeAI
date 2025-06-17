@@ -1,0 +1,266 @@
+import { useState, useEffect } from 'react'
+import { generateSouls } from '../services/openai'
+
+function SoulGeneration({ compressedContext, onSoulsGenerated, onSoulChosen }) {
+  const [isGenerating, setIsGenerating] = useState(true)
+  const [currentPhase, setCurrentPhase] = useState(0)
+  const [souls, setSouls] = useState([])
+  const [selectedSoul, setSelectedSoul] = useState(null)
+  const [error, setError] = useState(null)
+
+  const generationPhases = [
+    "Analyzing content domain...",
+    "Mapping conversation patterns...",
+    "Generating soul archetype 1...",
+    "Generating soul archetype 2...", 
+    "Generating soul archetype 3...",
+    "Finalizing agent souls..."
+  ]
+
+  useEffect(() => {
+    generateAgentSouls()
+  }, [compressedContext])
+
+  const generateAgentSouls = async () => {
+    try {
+      // Simulate generation phases
+      for (let i = 0; i < generationPhases.length - 1; i++) {
+        setCurrentPhase(i)
+        await new Promise(resolve => setTimeout(resolve, 1200))
+      }
+
+      setCurrentPhase(generationPhases.length - 1)
+      
+      // Real AI soul generation
+      const result = await generateSouls(compressedContext)
+      
+      setSouls(result.souls)
+      onSoulsGenerated(result.souls)
+      setIsGenerating(false)
+    } catch (err) {
+      setError(err.message)
+      setIsGenerating(false)
+    }
+  }
+
+  const handleSoulSelect = (soul) => {
+    setSelectedSoul(soul)
+  }
+
+  const handleChooseSoul = () => {
+    onSoulChosen(selectedSoul)
+  }
+
+  const handleRegenerate = () => {
+    setError(null)
+    setIsGenerating(true)
+    setCurrentPhase(0)
+    setSelectedSoul(null)
+    generateAgentSouls()
+  }
+
+  // Helper function to safely render any value
+  const renderValue = (value, fallback = 'Not specified') => {
+    if (value === null || value === undefined) {
+      return fallback
+    }
+    if (typeof value === 'object') {
+      if (Array.isArray(value)) {
+        return value.join(', ')
+      }
+      return JSON.stringify(value, null, 2)
+    }
+    return String(value)
+  }
+
+  // Helper function to safely get nested properties
+  const safeGet = (obj, path, fallback = 'Not specified') => {
+    try {
+      const keys = path.split('.')
+      let result = obj
+      for (const key of keys) {
+        result = result?.[key]
+      }
+      return renderValue(result, fallback)
+    } catch {
+      return fallback
+    }
+  }
+
+  if (error) {
+    return (
+      <div className="void-panel neural-glow">
+        <h2 className="text-xl sm:text-2xl font-bold text-plasma mb-6">
+          ⚠️ Soul Generation Error
+        </h2>
+        
+        <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4 mb-6">
+          <p className="text-red-400 mb-4">{error}</p>
+          <p className="text-gray-400 text-sm">
+            Failed to generate agent souls from content analysis.
+          </p>
+        </div>
+
+        <button
+          onClick={handleRegenerate}
+          className="w-full py-3 px-6 bg-plasma hover:bg-plasma/80 rounded-lg font-semibold transition-colors min-h-[48px]"
+        >
+          🔄 Regenerate Souls
+        </button>
+      </div>
+    )
+  }
+
+  if (isGenerating) {
+    return (
+      <div className="void-panel neural-glow text-center">
+        <h2 className="text-xl sm:text-2xl font-bold text-synapse mb-6 sm:mb-8">
+          3️⃣ Generating Souls
+        </h2>
+        
+        <div className="mb-6 sm:mb-8">
+          <div className="relative">
+            <div className="inline-block animate-spin rounded-full h-12 sm:h-16 w-12 sm:w-16 border-b-4 border-plasma"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-6 sm:w-8 h-6 sm:h-8 bg-synapse rounded-full animate-pulse-glow"></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-base sm:text-lg text-white mb-4">
+          {generationPhases[currentPhase]}
+        </div>
+
+        <div className="w-full bg-gray-700 rounded-full h-2 mb-6">
+          <div 
+            className="bg-gradient-to-r from-synapse to-plasma h-2 rounded-full transition-all duration-500"
+            style={{ width: `${((currentPhase + 1) / generationPhases.length) * 100}%` }}
+          ></div>
+        </div>
+
+        <p className="text-gray-400 px-4">
+          Forging distinct conversational souls from content patterns...
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="void-panel neural-glow">
+      <div className="mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-synapse mb-2">
+          👻 Choose Your Agent Soul
+        </h2>
+        <p className="text-gray-400">
+          Select one soul to configure its behavior and deploy
+        </p>
+      </div>
+
+      {/* Soul Cards */}
+      <div className="grid gap-4 sm:gap-6 mb-6 sm:mb-8">
+        {souls.map((soul, index) => (
+          <div 
+            key={index}
+            className={`p-4 sm:p-6 rounded-lg border-2 cursor-pointer transition-all hover:scale-[1.01] ${
+              selectedSoul === soul
+                ? 'border-synapse bg-synapse/10 shadow-lg shadow-synapse/20'
+                : 'border-gray-600 hover:border-plasma/50'
+            }`}
+            onClick={() => handleSoulSelect(soul)}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3 flex-1">
+                <span className="text-xl sm:text-2xl">👻</span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg sm:text-xl font-bold text-white break-words">{renderValue(soul.agent_name)}</h3>
+                  <p className="text-sm text-plasma font-medium">{renderValue(soul.role)}</p>
+                  <p className="text-xs text-gray-400 mt-1">Tone: {renderValue(soul.tone)}</p>
+                </div>
+              </div>
+              {selectedSoul === soul && (
+                <div className="w-6 h-6 bg-synapse rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+                  <span className="text-white text-sm">✓</span>
+                </div>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <h4 className="text-plasma font-semibold mb-2">🎯 Purpose</h4>
+              <p className="text-gray-300 text-sm">{renderValue(soul.description)}</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              <div>
+                <h4 className="text-yellow-400 font-semibold mb-2">💬 Approach</h4>
+                <div className="text-sm text-gray-300 space-y-1">
+                  <div><span className="text-synapse">Response Style:</span> {renderValue(soul.response_approach)}</div>
+                  <div><span className="text-synapse">Specialization:</span> {renderValue(soul.specialization)}</div>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-green-400 font-semibold mb-2">🔄 Interaction Pattern</h4>
+                <p className="text-sm text-gray-300">{renderValue(soul.interaction_pattern)}</p>
+              </div>
+            </div>
+
+            {/* Content Boundaries */}
+            {soul.content_boundaries && Array.isArray(soul.content_boundaries) && soul.content_boundaries.length > 0 && (
+              <div className="mb-4">
+                <h4 className="text-blue-400 font-semibold mb-2">📚 Knowledge Scope</h4>
+                <ul className="space-y-1">
+                  {soul.content_boundaries.slice(0, 3).map((boundary, idx) => (
+                    <li key={idx} className="text-xs text-gray-400 flex items-start">
+                      <span className="text-blue-400 mr-2 flex-shrink-0">•</span>
+                      <span>{renderValue(boundary)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Scope Limitations */}
+            {soul.scope_limitations && Array.isArray(soul.scope_limitations) && soul.scope_limitations.length > 0 && (
+              <div className="mb-4">
+                <h4 className="text-red-400 font-semibold mb-2">🚫 Limitations</h4>
+                <ul className="space-y-1">
+                  {soul.scope_limitations.slice(0, 3).map((limitation, idx) => (
+                    <li key={idx} className="text-xs text-gray-400 flex items-start">
+                      <span className="text-red-400 mr-2 flex-shrink-0">•</span>
+                      <span>{renderValue(limitation)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Value Proposition */}
+            <div className="bg-neural/30 rounded p-3">
+              <h4 className="text-purple-400 font-semibold mb-1 text-sm">💎 Value Proposition</h4>
+              <p className="text-xs text-gray-300">{renderValue(soul.value_proposition)}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <button
+          onClick={handleRegenerate}
+          className="flex-1 py-3 px-6 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg font-semibold transition-all min-h-[48px]"
+        >
+          🔄 Generate New Souls
+        </button>
+        
+        <button
+          onClick={handleChooseSoul}
+          disabled={!selectedSoul}
+          className="flex-1 py-3 px-6 bg-gradient-to-r from-synapse to-plasma hover:from-synapse/80 hover:to-plasma/80 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition-all transform hover:scale-105 disabled:hover:scale-100 min-h-[48px]"
+        >
+          ⚙️ Configure Behavior →
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export default SoulGeneration

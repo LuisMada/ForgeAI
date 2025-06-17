@@ -1,12 +1,29 @@
 import { useState } from 'react'
 
 const SAMPLE_CONTEXTS = [
-  
   {
-    name: "Healthcare Workflow Documentation",
-    type: "Internal Docs",
-    domain: "Healthcare Operations",
-    content: "Documentation of patient intake processes, nurse scheduling conflicts, insurance verification bottlenecks, and electronic health record inefficiencies across 3 hospitals. Notable pain points include 40% of nurses spending 2+ hours daily on administrative tasks, insurance verification taking 24-72 hours causing treatment delays, and patient data scattered across 7 different systems requiring manual reconciliation."
+    name: "AI Industry Update Video Transcript",
+    type: "Video Transcript",
+    domain: "AI Technology",
+    content: "Transcript from latest AI developments video covering OpenAI's new models, Google's AI research updates, Microsoft's enterprise AI tools, regulatory discussions in EU, and startup funding trends. Key topics include model capabilities, pricing changes, ethical considerations, and market competition. Discusses technical breakthroughs, business applications, and future predictions for AI adoption across industries."
+  },
+  {
+    name: "React.js Documentation", 
+    type: "Technical Documentation",
+    domain: "Web Development",
+    content: "Official React documentation covering hooks, component patterns, state management, performance optimization, and best practices. Includes code examples, API references, migration guides, and troubleshooting common issues. Covers beginner to advanced concepts including custom hooks, context API, suspense, and concurrent features."
+  },
+  {
+    name: "Marketing Strategy Workshop Notes",
+    type: "Workshop Notes", 
+    domain: "Digital Marketing",
+    content: "Notes from 3-day marketing workshop covering customer acquisition strategies, conversion optimization, A/B testing methodologies, social media advertising, content marketing frameworks, and analytics interpretation. Includes case studies from successful campaigns, budget allocation strategies, and ROI measurement techniques."
+  },
+  {
+    name: "Mental Health Research Findings",
+    type: "Research Data",
+    domain: "Psychology",
+    content: "Research findings on anxiety patterns in Generation Z students. Key themes include social media comparison stress, academic pressure intensified by uncertain job markets, identity formation challenges in digital spaces, and emotional numbness as a coping mechanism. Many report feeling 'stuck between being told they're resilient and feeling completely overwhelmed.'"
   }
 ]
 
@@ -38,16 +55,16 @@ function ContextUpload({ onComplete }) {
     <div className="void-panel neural-glow">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-synapse mb-2">
-          Step 1: Feed the Forge
+          1️⃣ Input Any Domain Content
         </h2>
         <p className="text-gray-400">
-          Upload domain knowledge to extract startup intelligence
+          Upload any content to generate domain-specific conversational agents
         </p>
       </div>
 
       {/* Sample Contexts */}
       <div className="grid gap-4 mb-8">
-        <h3 className="text-lg font-semibold text-plasma">Sample Contexts</h3>
+        <h3 className="text-lg font-semibold text-plasma">Sample Content Types</h3>
         {SAMPLE_CONTEXTS.map((context, index) => (
           <div 
             key={index}
@@ -73,13 +90,16 @@ function ContextUpload({ onComplete }) {
 
       {/* Custom Input */}
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-plasma mb-4">Custom Context</h3>
+        <h3 className="text-lg font-semibold text-plasma mb-4">Custom Content</h3>
         <textarea
           value={customContext}
           onChange={(e) => setCustomContext(e.target.value)}
-          placeholder="Paste your domain knowledge here... (research, docs, transcripts, reports, etc.)"
+          placeholder="Paste any content here... (video transcripts, documentation, articles, research, meeting notes, tutorials, etc.)"
           className="w-full h-40 p-4 bg-neural border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-synapse focus:outline-none transition-colors"
         />
+        <p className="text-xs text-gray-500 mt-2">
+          💡 Works with any domain: technical docs, business content, educational material, research, tutorials, etc.
+        </p>
       </div>
 
       {/* Action Buttons */}
@@ -89,7 +109,7 @@ function ContextUpload({ onComplete }) {
           disabled={selectedContext === null || isProcessing}
           className="flex-1 py-3 px-6 bg-synapse hover:bg-synapse/80 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition-all transform hover:scale-105 disabled:hover:scale-100"
         >
-          {isProcessing ? '⚡ Processing...' : '⚡ Use Sample Context'}
+          {isProcessing ? '🧠 Analyzing...' : '🧠 Use Sample Content'}
         </button>
         
         <button
@@ -97,16 +117,27 @@ function ContextUpload({ onComplete }) {
           disabled={!customContext.trim() || isProcessing}
           className="flex-1 py-3 px-6 bg-plasma hover:bg-plasma/80 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition-all transform hover:scale-105 disabled:hover:scale-100"
         >
-          {isProcessing ? '⚡ Processing...' : '🚀 Upload Custom'}
+          {isProcessing ? '🧠 Analyzing...' : '👻 Upload Custom'}
         </button>
       </div>
 
       {isProcessing && (
         <div className="mt-6 text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-synapse"></div>
-          <p className="text-gray-400 mt-2">Feeding the forge...</p>
+          <p className="text-gray-400 mt-2">Analyzing content for agent opportunities...</p>
         </div>
       )}
+
+      {/* Info Box */}
+      <div className="mt-6 p-4 bg-neural/30 rounded-lg border border-gray-700">
+        <h4 className="text-yellow-400 font-semibold mb-2 text-sm">💡 What Content Works?</h4>
+        <ul className="text-xs text-gray-400 space-y-1">
+          <li>• <span className="text-green-400">Rich content</span> - Detailed information users would want to interact with</li>
+          <li>• <span className="text-blue-400">Any domain</span> - Tech, business, education, research, entertainment, etc.</li>
+          <li>• <span className="text-purple-400">Conversational potential</span> - Content people would ask questions about</li>
+          <li>• <span className="text-yellow-400">Examples:</span> Video transcripts, docs, tutorials, research, meeting notes</li>
+        </ul>
+      </div>
     </div>
   )
 }

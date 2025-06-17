@@ -1,26 +1,50 @@
 import { useState, useRef, useEffect } from 'react'
-import { chatWithAgent } from '../services/openai'
+import { chatWithSoul } from '../services/openai'
 
-function AgentInterface({ agent, soul, onReset }) {
+function AgentInterface({ soul, behaviorConfig, compressedContext, originalContent, onReset }) {
   const [messages, setMessages] = useState([])
   const [inputMessage, setInputMessage] = useState('')
   const [isThinking, setIsThinking] = useState(false)
+  const [stats, setStats] = useState({ interactions: 0, avgResponseTime: 0 })
+  const [showSystemPrompt, setShowSystemPrompt] = useState(false)
   const messagesEndRef = useRef(null)
+
+  // Helper function to safely render any value
+  const renderValue = (value, fallback = 'Not specified') => {
+    if (value === null || value === undefined) {
+      return fallback
+    }
+    if (typeof value === 'object') {
+      if (Array.isArray(value)) {
+        return value.join(', ')
+      }
+      return JSON.stringify(value, null, 2)
+    }
+    return String(value)
+  }
 
   // Initial greeting
   useEffect(() => {
-    const initialGreeting = `Hello! I'm ${agent.agent_name}, your AI cofounder. I specialize in ${agent.problem.toLowerCase()} for ${agent.who.toLowerCase()}. 
+    const agentName = renderValue(behaviorConfig?.deployment_config?.agent_name, 'AI Agent')
+    const role = renderValue(behaviorConfig?.deployment_config?.role, 'AI Assistant')
+    const domain = renderValue(compressedContext?.domain, 'this domain')
+    
+    // Get a conversation starter if available
+    const starters = behaviorConfig?.deployment_config?.conversation_starters || []
+    const randomStarter = starters.length > 0 
+      ? starters[Math.floor(Math.random() * starters.length)]
+      : "What would you like to know?"
 
-My approach is ${soul.character.toLowerCase()} and I communicate in a ${soul.tone.toLowerCase()} way. I'm driven by ${soul.emotion.toLowerCase()} to solve real problems.
+    const initialGreeting = `Hello! I'm ${agentName}, your ${role}. I specialize in ${domain} and I'm here to help you with questions and insights in this area.
 
-What would you like to work on together? I can help with strategy, execution, problem-solving, or dive deep into the specifics of your startup idea.`
+${randomStarter}`
 
     setMessages([{
       role: 'agent',
       content: initialGreeting,
       timestamp: new Date().toISOString()
     }])
-  }, [agent, soul])
+  }, [soul, behaviorConfig, compressedContext])
 
   useEffect(() => {
     scrollToBottom()
@@ -33,6 +57,7 @@ What would you like to work on together? I can help with strategy, execution, pr
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isThinking) return
 
+    const startTime = Date.now()
     const userMessage = {
       role: 'user',
       content: inputMessage,
@@ -45,20 +70,30 @@ What would you like to work on together? I can help with strategy, execution, pr
 
     try {
       const conversationHistory = [...messages, userMessage]
-      const agentResponse = await chatWithAgent(agent, soul, conversationHistory, inputMessage)
+      const agentResponse = await chatWithSoul(soul, behaviorConfig, compressedContext, conversationHistory, inputMessage, originalContent.content)
+      
+      const responseTime = Date.now() - startTime
       
       const agentMessage = {
         role: 'agent',
         content: agentResponse,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        responseTime
       }
 
       setMessages(prev => [...prev, agentMessage])
+      
+      // Update stats
+      setStats(prev => ({
+        interactions: prev.interactions + 1,
+        avgResponseTime: Math.round((prev.avgResponseTime * prev.interactions + responseTime) / (prev.interactions + 1))
+      }))
+
     } catch (error) {
-      console.error('Chat error:', error)
+      console.error('Agent communication error:', error)
       const errorMessage = {
         role: 'agent',
-        content: "I apologize, but I'm having trouble processing that right now. Could you try rephrasing your question?",
+        content: "I apologize, but I'm having trouble processing that right now. Could you try rephrasing your message?",
         timestamp: new Date().toISOString()
       }
       setMessages(prev => [...prev, errorMessage])
@@ -76,8 +111,10 @@ What would you like to work on together? I can help with strategy, execution, pr
 
   const exportConversation = () => {
     const conversationData = {
-      agent: agent.agent_name,
-      soul_characteristics: soul,
+      agent_name: renderValue(behaviorConfig?.deployment_config?.agent_name),
+      agent_role: renderValue(behaviorConfig?.deployment_config?.role),
+      domain: renderValue(compressedContext?.domain),
+      session_stats: stats,
       conversation: messages,
       exported_at: new Date().toISOString()
     }
@@ -86,47 +123,83 @@ What would you like to work on together? I can help with strategy, execution, pr
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${agent.agent_name.toLowerCase().replace(' ', '-')}-conversation.json`
+    a.download = `${renderValue(behaviorConfig?.deployment_config?.agent_name, 'agent').toLowerCase().replace(/\s+/g, '-')}-conversation.json`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }
 
+  const agentName = renderValue(behaviorConfig?.deployment_config?.agent_name, 'AI Agent')
+  const agentRole = renderValue(behaviorConfig?.deployment_config?.role, 'AI Assistant')
+  const domain = renderValue(compressedContext?.domain, 'Unknown Domain')
+  const tone = renderValue(soul?.tone, 'helpful')
+  
+  // Safe access to conversation starters
+  const conversationStarters = behaviorConfig?.deployment_config?.conversation_starters || []
+  const quickStarters = Array.isArray(conversationStarters) ? conversationStarters.slice(0, 4) : []
+
   return (
     <div className="void-panel neural-glow">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-synapse mb-1">
-            5️⃣ {agent.agent_name}
+            5️⃣ {agentName}
           </h2>
           <p className="text-gray-400 text-sm">
-            Your AI cofounder is ready • {soul.tone} • Driven by {soul.emotion}
+            {agentRole} • {tone} tone • {stats.interactions} interactions
           </p>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-          <span className="text-green-400 text-sm">ONLINE</span>
+          <span className="text-green-400 text-sm">ACTIVE</span>
         </div>
       </div>
 
       {/* Agent Profile Card */}
       <div className="bg-gradient-to-r from-synapse/10 to-plasma/10 border border-synapse/30 rounded-lg p-4 mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-sm">
           <div>
-            <span className="text-synapse font-semibold">Focus:</span>
-            <p className="text-gray-300">{agent.problem}</p>
+            <span className="text-synapse font-semibold">Domain:</span>
+            <p className="text-gray-300">{domain}</p>
           </div>
           <div>
-            <span className="text-plasma font-semibold">Target:</span>
-            <p className="text-gray-300">{agent.who}</p>
+            <span className="text-plasma font-semibold">Specialization:</span>
+            <p className="text-gray-300">{renderValue(soul?.specialization, 'General assistance')}</p>
           </div>
           <div>
-            <span className="text-yellow-400 font-semibold">Approach:</span>
-            <p className="text-gray-300">{agent.approach}</p>
+            <span className="text-yellow-400 font-semibold">Content Source:</span>
+            <p className="text-gray-300">{renderValue(originalContent?.source, 'Unknown')}</p>
+          </div>
+          <div>
+            <span className="text-purple-400 font-semibold">Content Words:</span>
+            <p className="text-gray-300">{renderValue(originalContent?.wordCount, 'N/A')}</p>
           </div>
         </div>
+        
+        {/* System Prompt Viewer Toggle */}
+        <div className="mt-4 pt-4 border-t border-gray-600">
+          <button
+            onClick={() => setShowSystemPrompt(!showSystemPrompt)}
+            className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            {showSystemPrompt ? '🔽 Hide System Prompt' : '🔍 View System Prompt'}
+          </button>
+        </div>
       </div>
+
+      {/* System Prompt Viewer */}
+      {showSystemPrompt && (
+        <div className="bg-gray-900 border border-gray-600 rounded-lg p-4 mb-6">
+          <h4 className="text-blue-400 font-semibold mb-3 text-sm">🔍 System Prompt</h4>
+          <div className="bg-black p-3 rounded text-xs text-green-400 font-mono max-h-60 overflow-y-auto whitespace-pre-wrap">
+            {renderValue(behaviorConfig?.deployment_config?.system_prompt, 'No system prompt available')}
+          </div>
+          <div className="mt-3 text-xs text-gray-500">
+            This is the exact prompt that defines your agent's behavior and knowledge boundaries.
+          </div>
+        </div>
+      )}
 
       {/* Chat Messages */}
       <div className="bg-neural/50 rounded-lg border border-gray-600 mb-4" style={{ height: window.innerWidth < 768 ? '300px' : '400px' }}>
@@ -139,13 +212,16 @@ What would you like to work on together? I can help with strategy, execution, pr
                   : 'bg-void border border-plasma/30 text-gray-100'
               }`}>
                 {message.role === 'agent' && (
-                  <div className="text-plasma text-xs font-semibold mb-1">{agent.agent_name}</div>
+                  <div className="text-plasma text-xs font-semibold mb-1">{agentName}</div>
                 )}
                 <div className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</div>
-                <div className={`text-xs mt-2 ${
+                <div className={`text-xs mt-2 flex justify-between ${
                   message.role === 'user' ? 'text-blue-200' : 'text-gray-400'
                 }`}>
-                  {new Date(message.timestamp).toLocaleTimeString()}
+                  <span>{new Date(message.timestamp).toLocaleTimeString()}</span>
+                  {message.responseTime && (
+                    <span>{message.responseTime}ms</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -154,7 +230,7 @@ What would you like to work on together? I can help with strategy, execution, pr
           {isThinking && (
             <div className="flex justify-start">
               <div className="bg-void border border-plasma/30 text-gray-100 p-3 rounded-lg max-w-[85%]">
-                <div className="text-plasma text-xs font-semibold mb-1">{agent.agent_name}</div>
+                <div className="text-plasma text-xs font-semibold mb-1">{agentName}</div>
                 <div className="flex items-center space-x-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-plasma"></div>
                   <span className="text-sm text-gray-400">Thinking...</span>
@@ -173,7 +249,7 @@ What would you like to work on together? I can help with strategy, execution, pr
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyDown={handleKeyPress}
-          placeholder="Ask your AI cofounder anything about strategy, execution, problems to solve..."
+          placeholder={`Ask ${agentName} about ${domain}...`}
           className="flex-1 p-3 bg-neural border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-synapse focus:outline-none resize-none text-sm"
           rows="3"
           disabled={isThinking}
@@ -183,36 +259,46 @@ What would you like to work on together? I can help with strategy, execution, pr
           disabled={!inputMessage.trim() || isThinking}
           className="px-4 sm:px-6 py-3 bg-synapse hover:bg-synapse/80 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition-all self-end min-h-[48px]"
         >
-          {isThinking ? '🤔' : '📤'}
+          {isThinking ? '🤔' : '💬'}
         </button>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-6">
-        <button
-          onClick={() => setInputMessage("Help me validate this startup idea...")}
-          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-xs sm:text-sm transition-all min-h-[48px]"
-        >
-          💡 Validate Idea
-        </button>
-        <button
-          onClick={() => setInputMessage("What should my MVP look like?")}
-          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-xs sm:text-sm transition-all min-h-[48px]"
-        >
-          🛠️ Plan MVP
-        </button>
-        <button
-          onClick={() => setInputMessage("How should I approach go-to-market?")}
-          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-xs sm:text-sm transition-all min-h-[48px]"
-        >
-          🚀 Go-to-Market
-        </button>
-        <button
-          onClick={() => setInputMessage("What are the biggest risks I should watch out for?")}
-          className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-xs sm:text-sm transition-all min-h-[48px]"
-        >
-          ⚠️ Risk Analysis
-        </button>
+      {/* Quick Conversation Starters */}
+      {quickStarters.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-6">
+          {quickStarters.map((starter, index) => (
+            <button
+              key={index}
+              onClick={() => setInputMessage(starter)}
+              className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-xs sm:text-sm transition-all min-h-[48px] text-left"
+            >
+              💡 {starter}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Content Grounding Display */}
+      <div className="bg-neural/30 rounded-lg border border-gray-700 p-4 mb-6">
+        <h4 className="text-green-400 font-semibold mb-2 text-sm">📚 Content Grounding</h4>
+        <div className="text-xs text-gray-400 mb-3">
+          <strong className="text-green-400">Agent Knowledge Source:</strong> This agent's responses are based entirely on your uploaded content.
+        </div>
+        <div className="bg-gray-800 p-3 rounded max-h-32 overflow-y-auto">
+          <p className="text-xs text-gray-300 leading-relaxed">
+            <strong className="text-blue-400">Uploaded Content Preview:</strong><br/>
+            {originalContent?.content ? 
+              (originalContent.content.length > 300 ? 
+                originalContent.content.substring(0, 300) + '...' : 
+                originalContent.content
+              ) : 
+              'No content available'
+            }
+          </p>
+        </div>
+        <div className="mt-2 text-xs text-gray-500">
+          The agent can only discuss information contained in this uploaded content.
+        </div>
       </div>
 
       {/* Action Buttons */}
@@ -221,7 +307,7 @@ What would you like to work on together? I can help with strategy, execution, pr
           onClick={exportConversation}
           className="flex-1 py-3 px-6 bg-void hover:bg-void/80 border border-gray-600 hover:border-plasma/50 rounded-lg font-semibold transition-all min-h-[48px]"
         >
-          💾 Export Chat
+          💾 Export Session
         </button>
         
         <button
@@ -232,21 +318,21 @@ What would you like to work on together? I can help with strategy, execution, pr
         </button>
       </div>
 
-      {/* Agent Soul Summary */}
+      {/* Session Performance */}
       <div className="mt-6 p-4 bg-neural/30 rounded-lg border border-gray-700">
-        <h4 className="text-plasma font-semibold mb-2">🧠 Agent Personality</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs text-gray-400">
+        <h4 className="text-synapse font-semibold mb-2 text-sm">📊 Session Performance</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-gray-400">
           <div>
-            <span className="text-synapse">Emotion:</span> {soul.emotion}
+            <span className="text-green-400">Interactions:</span> {stats.interactions}
           </div>
           <div>
-            <span className="text-synapse">Tone:</span> {soul.tone}
+            <span className="text-blue-400">Avg Response:</span> {stats.avgResponseTime}ms
           </div>
           <div>
-            <span className="text-synapse">Character:</span> {soul.character}
+            <span className="text-yellow-400">Temperature:</span> {renderValue(behaviorConfig?.deployment_config?.llm_settings?.temperature, 'N/A')}
           </div>
           <div>
-            <span className="text-synapse">Framework:</span> {soul.decision_framework}
+            <span className="text-purple-400">Domain:</span> {domain}
           </div>
         </div>
       </div>

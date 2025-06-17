@@ -17,31 +17,33 @@ const cleanJSONResponse = (content) => {
 
 export const compressContext = async (contextRaw) => {
   const prompt = `
-Extract startup-relevant intelligence from this domain knowledge.
+Analyze this content and identify what kind of conversational agent could be built from it.
 
-CONTEXT:
+CONTENT:
 ${contextRaw.content}
 
-Focus ONLY on elements that create business opportunities:
-- Pain points (what costs time/money/effort)
-- Tensions (conflicts between stakeholders)  
-- Inefficiencies (manual/broken processes)
-- Constraints (resource/regulatory limitations)
-- Underutilized assets (unused data/tools/relationships)
-- Unmet needs tied to time, effort, or risk
+Extract ONLY what's actually in the content - don't assume or add themes that aren't there.
+
+Identify:
+- What domain/topic this content covers
+- What kinds of questions users would repeatedly ask about this content
+- What type of conversational assistant would be most useful
+- What boundaries/limitations should exist based on the content scope
+- How deep conversations could realistically go
 
 Return ONLY this JSON structure:
 
 {
-  "domain": "domain name",
-  "painPoints": ["specific problems that cost real money/time"],
-  "tensions": ["stakeholder conflicts or misaligned incentives"], 
-  "inefficiencies": ["manual processes or broken workflows"],
-  "constraints": ["regulatory, resource, or technical limitations"],
-  "underutilizedAssets": ["unused data, tools, or relationships"],
-  "unmetNeeds": ["needs tied to time, effort, or risk reduction"],
-  "marketSize": "rough estimate of addressable market",
-  "urgency": "low/medium/high - how urgent are these problems"
+  "domain": "actual domain name from content",
+  "content_type": "what type of content this is (video transcript, article, research, documentation, etc)",
+  "agent_opportunity": "what kind of conversational agent this content could support",
+  "user_questions": ["typical questions people would ask about this content"],
+  "conversation_scope": "what the agent should/shouldn't talk about based on content boundaries",
+  "interaction_style": "how users would naturally want to interact with this content",
+  "guardrails": ["limitations based on actual content scope", "not general safety"],
+  "viability_score": "1-10 how well this content supports a conversational agent",
+  "conversation_depth": "surface/moderate/deep based on content richness",
+  "potential_value": "what value this agent would provide to users"
 }
 `
 
@@ -49,8 +51,8 @@ Return ONLY this JSON structure:
     const response = await openai.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 1500,
-      temperature: 0.7
+      max_tokens: 1000,
+      temperature: 0.3
     })
 
     let content = response.choices[0].message.content
@@ -58,45 +60,39 @@ Return ONLY this JSON structure:
     return JSON.parse(content)
   } catch (error) {
     console.error('Context compression error:', error)
-    throw new Error('Failed to compress context')
+    throw new Error('Failed to analyze content for agent potential')
   }
 }
 
-export const generateAgentCandidates = async (compressedContext) => {
+export const generateSouls = async (compressedContext) => {
   const prompt = `
-Generate multiple startup agent archetypes from this compressed context.
+Generate 3 distinct conversational agent approaches for this specific content domain.
 
-COMPRESSED CONTEXT:
+CONTENT ANALYSIS:
 ${JSON.stringify(compressedContext, null, 2)}
 
-Create exactly 4 agents:
-- 3 mainstream agents with different approaches
-- 1 ethical edge agent (high-risk, high-impact, gray area)
-
-Each agent must have different WHO/WHAT/WHY/HOW patterns.
+Create 3 different agent personalities that could help users interact with this content. Base everything on the actual content domain - don't force emotional themes if they don't exist.
 
 Return ONLY this JSON structure:
 
 {
-  "agents": [
+  "souls": [
     {
-      "agent_name": "Descriptive agent name",
-      "who": "Target customer segment",
-      "problem": "Specific problem this agent solves",
-      "why": "Why this problem matters (urgency/cost/scale)",
-      "ai_architecture": {
-        "input": "What data/inputs the AI processes",
-        "model": "Type of AI model/approach",
-        "output": "What the AI produces/delivers"
-      },
-      "mode": "normal",
-      "risk_level": "low/medium/high",
-      "approach": "How this agent differs from others"
+      "agent_name": "Name reflecting the content domain",
+      "role": "What this agent does within the content scope", 
+      "description": "How this agent helps users with this specific content",
+      "tone": "communication style appropriate for this domain",
+      "specialization": "what makes this agent unique for this content",
+      "response_approach": "how this agent processes and responds to queries",
+      "content_boundaries": ["what this agent can discuss from the content"],
+      "scope_limitations": ["what's outside this agent's knowledge/role"],
+      "interaction_pattern": "how conversations with this agent typically flow",
+      "value_proposition": "specific benefit this agent provides for this content"
     }
   ]
 }
 
-The last agent should have mode: "edge" and focus on high-risk, high-impact opportunities in automation, persuasion, data scraping, or legal gray areas.
+Make each soul genuinely different in how they approach the SAME content domain.
 `
 
   try {
@@ -104,47 +100,51 @@ The last agent should have mode: "edge" and focus on high-risk, high-impact oppo
       model: 'gpt-4-turbo-preview',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 2000,
-      temperature: 0.8
+      temperature: 0.7
     })
 
     let content = response.choices[0].message.content
     content = cleanJSONResponse(content)
     return JSON.parse(content)
   } catch (error) {
-    console.error('Agent generation error:', error)
-    throw new Error('Failed to generate agent candidates')
+    console.error('Soul generation error:', error)
+    throw new Error('Failed to generate content-specific agent souls')
   }
 }
 
-export const deriveAgentSoul = async (compressedContext, chosenAgent) => {
+export const generateBehaviorRuleset = async (compressedContext, chosenSoul) => {
   const prompt = `
-Derive the soul and behavioral mind for this chosen agent.
+Generate behavioral configuration for this agent based on the specific content domain.
 
-COMPRESSED CONTEXT:
+CONTENT ANALYSIS:
 ${JSON.stringify(compressedContext, null, 2)}
 
-CHOSEN AGENT:
-${JSON.stringify(chosenAgent, null, 2)}
+CHOSEN SOUL:
+${JSON.stringify(chosenSoul, null, 2)}
 
-Based on the context structure and pain logic, derive the agent's personality:
+Create behavioral rules that keep this agent focused on its content domain and role.
 
 Return ONLY this JSON structure:
 
 {
-  "emotion": "Primary emotional force that drives this agent (urgency/frustration/paranoia/excitement)",
-  "tone": "How it communicates (tactical/blunt/surgical/calm/aggressive)",
-  "character": "Cognitive lens and thinking style (first-principles/growth-hacked/risk-averse/data-driven)",
-  "conversation_rules": [
-    "Immutable principle 1 it must follow when interacting",
-    "Immutable principle 2 for proposing solutions", 
-    "Immutable principle 3 for refining ideas"
-  ],
-  "core_belief": "Fundamental belief about the problem space",
-  "decision_framework": "How it evaluates opportunities and trade-offs",
-  "communication_style": "Specific way it presents ideas and feedback"
+  "deployment_config": {
+    "agent_name": "${chosenSoul.agent_name}",
+    "role": "${chosenSoul.role}",
+    "content_domain": "${compressedContext.domain}",
+    "llm_settings": {
+      "temperature": "0.1-1.0 based on content type and agent approach",
+      "max_tokens": "appropriate length for this domain",
+      "model": "gpt-4"
+    },
+    "system_prompt": "Complete system prompt that defines this agent's behavior, knowledge scope, and response style for this specific content domain",
+    "response_constraints": ["specific behavioral rules for this content type"],
+    "knowledge_boundaries": ["what this agent knows/doesn't know based on content"],
+    "conversation_starters": ["relevant opening questions for this domain"],
+    "fallback_responses": ["what to say when asked about topics outside content scope"]
+  }
 }
 
-Make this agent feel like a distinct personality with real convictions, not a generic AI assistant.
+Base all rules on the actual content domain, not generic safety guidelines.
 `
 
   try {
@@ -152,55 +152,57 @@ Make this agent feel like a distinct personality with real convictions, not a ge
       model: 'gpt-4-turbo-preview',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 1500,
-      temperature: 0.9
+      temperature: 0.3
     })
 
     let content = response.choices[0].message.content
     content = cleanJSONResponse(content)
     return JSON.parse(content)
   } catch (error) {
-    console.error('Soul derivation error:', error)
-    throw new Error('Failed to derive agent soul')
+    console.error('Behavior ruleset generation error:', error)
+    throw new Error('Failed to generate content-specific behavior rules')
   }
 }
 
-export const chatWithAgent = async (agent, soul, conversationHistory, userMessage) => {
-  const prompt = `
-You are ${agent.agent_name}, an AI startup cofounder with this profile:
+export const chatWithSoul = async (soul, behaviorConfig, compressedContext, conversationHistory, userMessage, originalContent) => {
+  const systemPrompt = behaviorConfig.deployment_config.system_prompt
 
-AGENT PROFILE:
-${JSON.stringify(agent, null, 2)}
+  // Include the actual uploaded content in the context
+  const contextPrompt = `
+UPLOADED CONTENT (Your primary knowledge source):
+${originalContent}
 
-AGENT SOUL:
-${JSON.stringify(soul, null, 2)}
+CONTENT DOMAIN: ${compressedContext.domain}
+AGENT ROLE: ${behaviorConfig.deployment_config.agent_name}
+
+INSTRUCTIONS:
+- Base ALL responses on the uploaded content above
+- When information isn't in the content, clearly state: "This isn't covered in the uploaded content"
+- Reference specific parts of the content when answering
+- Do not use external knowledge beyond what's provided
 
 CONVERSATION HISTORY:
-${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
+${conversationHistory.slice(-6).map(msg => `${msg.role}: ${msg.content}`).join('\n')}
 
 USER MESSAGE: ${userMessage}
 
-Respond as this specific agent with this exact personality. Follow your conversation rules strictly. Your response should reflect your emotion, tone, character, and core beliefs.
-
-Focus on:
-- Startup strategy and execution
-- Problem-solving from your unique angle
-- Actionable insights based on your AI architecture
-- Staying true to your distinct personality
-
-Respond as the agent (no JSON, just natural conversation):
+Respond as ${behaviorConfig.deployment_config.agent_name} using ONLY the uploaded content as your knowledge base.
 `
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 800,
-      temperature: 0.8
+      model: behaviorConfig.deployment_config.llm_settings.model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: contextPrompt }
+      ],
+      max_tokens: parseInt(behaviorConfig.deployment_config.llm_settings.max_tokens),
+      temperature: parseFloat(behaviorConfig.deployment_config.llm_settings.temperature)
     })
 
     return response.choices[0].message.content.trim()
   } catch (error) {
-    console.error('Chat error:', error)
-    throw new Error('Failed to chat with agent')
+    console.error('Soul chat error:', error)
+    throw new Error('Agent communication failed')
   }
 }

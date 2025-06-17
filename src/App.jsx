@@ -1,27 +1,27 @@
 import { useState } from 'react'
 import ContextUpload from './components/ContextUpload.jsx'
 import ContextCompression from './components/ContextCompression.jsx'
-import AgentGeneration from './components/AgentGeneration.jsx'
-import AgentSoulDerivation from './components/AgentSoulDerivation.jsx'
+import SoulGeneration from './components/SoulGeneration.jsx'
+import BehaviorRuleset from './components/BehaviorRuleset.jsx'
 import AgentInterface from './components/AgentInterface.jsx'
 
 const STAGES = {
   UPLOAD: 'upload',
   COMPRESS: 'compress',
-  GENERATE: 'generate', 
-  DERIVE: 'derive',
-  INTERFACE: 'interface'
+  GENERATE: 'generate',
+  CONFIGURE: 'configure', 
+  DEPLOY: 'deploy'
 }
 
 function App() {
   const [currentStage, setCurrentStage] = useState(STAGES.UPLOAD)
   const [contextRaw, setContextRaw] = useState(null)
   const [compressedContext, setCompressedContext] = useState(null)
-  const [agentCandidates, setAgentCandidates] = useState([])
-  const [chosenAgent, setChosenAgent] = useState(null)
-  const [agentSoul, setAgentSoul] = useState(null)
+  const [availableSouls, setAvailableSouls] = useState([])
+  const [chosenSoul, setChosenSoul] = useState(null)
+  const [behaviorConfig, setBehaviorConfig] = useState(null)
 
-  const progressToNext = (data, targetStage) => {
+  const progressToNext = (data) => {
     switch(currentStage) {
       case STAGES.UPLOAD:
         setContextRaw(data)
@@ -32,27 +32,27 @@ function App() {
         setCurrentStage(STAGES.GENERATE)
         break
       case STAGES.GENERATE:
-        setChosenAgent(data)
-        setCurrentStage(STAGES.DERIVE)
+        setChosenSoul(data)
+        setCurrentStage(STAGES.CONFIGURE)
         break
-      case STAGES.DERIVE:
-        setAgentSoul(data)
-        setCurrentStage(STAGES.INTERFACE)
+      case STAGES.CONFIGURE:
+        setBehaviorConfig(data)
+        setCurrentStage(STAGES.DEPLOY)
         break
     }
   }
 
-  const setAgents = (agents) => {
-    setAgentCandidates(agents)
+  const handleSoulsGenerated = (souls) => {
+    setAvailableSouls(souls)
   }
 
   const resetFlow = () => {
     setCurrentStage(STAGES.UPLOAD)
     setContextRaw(null)
     setCompressedContext(null)
-    setAgentCandidates([])
-    setChosenAgent(null)
-    setAgentSoul(null)
+    setAvailableSouls([])
+    setChosenSoul(null)
+    setBehaviorConfig(null)
   }
 
   const renderCurrentStage = () => {
@@ -62,34 +62,42 @@ function App() {
       case STAGES.COMPRESS:
         return <ContextCompression contextRaw={contextRaw} onComplete={progressToNext} />
       case STAGES.GENERATE:
-        return <AgentGeneration 
-          compressedContext={compressedContext} 
-          onAgentsGenerated={setAgents}
-          onAgentChosen={progressToNext} 
-        />
-      case STAGES.DERIVE:
-        return <AgentSoulDerivation 
-          compressedContext={compressedContext}
-          chosenAgent={chosenAgent} 
-          onComplete={progressToNext} 
-        />
-      case STAGES.INTERFACE:
-        return <AgentInterface 
-          agent={chosenAgent}
-          soul={agentSoul}
-          onReset={resetFlow}
-        />
+        return (
+          <SoulGeneration 
+            compressedContext={compressedContext}
+            onSoulsGenerated={handleSoulsGenerated}
+            onSoulChosen={progressToNext}
+          />
+        )
+      case STAGES.CONFIGURE:
+        return (
+          <BehaviorRuleset 
+            compressedContext={compressedContext}
+            chosenSoul={chosenSoul}
+            onComplete={progressToNext}
+          />
+        )
+      case STAGES.DEPLOY:
+        return (
+          <AgentInterface 
+            soul={chosenSoul}
+            behaviorConfig={behaviorConfig}
+            compressedContext={compressedContext}
+            originalContent={contextRaw}
+            onReset={resetFlow}
+          />
+        )
       default:
         return null
     }
   }
 
   const stageNames = {
-    [STAGES.UPLOAD]: 'Upload',
-    [STAGES.COMPRESS]: 'Compress', 
+    [STAGES.UPLOAD]: 'Input',
+    [STAGES.COMPRESS]: 'Extract', 
     [STAGES.GENERATE]: 'Generate',
-    [STAGES.DERIVE]: 'Derive',
-    [STAGES.INTERFACE]: 'Interface'
+    [STAGES.CONFIGURE]: 'Configure',
+    [STAGES.DEPLOY]: 'Deploy'
   }
 
   return (
@@ -102,7 +110,10 @@ function App() {
             Durinthal
           </h1>
           <p className="text-gray-400 text-base sm:text-lg px-4">
-            Transform knowledge into autonomous founder minds
+            Role Agent Product System
+          </p>
+          <p className="text-gray-500 text-sm px-4 mt-2">
+            Transform domain content into emotionally bounded conversational agents
           </p>
         </div>
 
@@ -118,7 +129,7 @@ function App() {
                   {index + 1}
                 </div>
                 {index < Object.values(STAGES).length - 1 && (
-                  <div className={`w-8 sm:w-16 h-0.5 mx-1 sm:mx-2 transition-colors duration-300
+                  <div className={`w-6 sm:w-12 h-0.5 mx-1 sm:mx-2 transition-colors duration-300
                     ${Object.values(STAGES).indexOf(currentStage) > index 
                       ? 'bg-synapse shadow-sm shadow-synapse/30' 
                       : 'bg-gray-700'}`} />
@@ -131,7 +142,7 @@ function App() {
           </div>
         </div>
 
-        {/* Current Stage Component - Stable Container */}
+        {/* Current Stage Component */}
         <div className="w-full">
           {renderCurrentStage()}
         </div>
