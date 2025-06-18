@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { chatWithSoul } from '../services/openai'
+import { exportToOkPo } from '../services/okpo'
 
 function AgentInterface({ soul, behaviorConfig, compressedContext, originalContent, onReset }) {
   const [messages, setMessages] = useState([])
@@ -7,6 +8,7 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
   const [isThinking, setIsThinking] = useState(false)
   const [stats, setStats] = useState({ interactions: 0, avgResponseTime: 0 })
   const [showSystemPrompt, setShowSystemPrompt] = useState(false)
+  const [okpoExport, setOkpoExport] = useState({ status: 'idle', data: null, error: null })
   const messagesEndRef = useRef(null)
 
   // Helper function to safely render any value
@@ -104,6 +106,30 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
     }
   }
 
+  const handleOkPoExport = async () => {
+    setOkpoExport({ status: 'loading', data: null, error: null })
+
+    try {
+      const result = await exportToOkPo(soul, behaviorConfig, compressedContext)
+      
+      setOkpoExport({ 
+        status: 'success', 
+        data: result, 
+        error: null 
+      })
+    } catch (error) {
+      setOkpoExport({ 
+        status: 'error', 
+        data: null, 
+        error: error.message 
+      })
+    }
+  }
+
+  const handleRetryExport = () => {
+    setOkpoExport({ status: 'idle', data: null, error: null })
+  }
+
   const exportConversation = () => {
     const conversationData = {
       agent_name: renderValue(behaviorConfig?.deployment_config?.agent_name),
@@ -193,6 +219,86 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
           <div className="mt-3 text-xs text-gray-500">
             This is the exact prompt that defines your agent's behavior and knowledge boundaries.
           </div>
+        </div>
+      )}
+
+      {/* OkPo Export Status */}
+      {okpoExport.status !== 'idle' && (
+        <div className="mb-6">
+          {okpoExport.status === 'loading' && (
+            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400"></div>
+                <div>
+                  <h4 className="text-blue-400 font-semibold">🚀 Deploying to OkPo...</h4>
+                  <p className="text-gray-400 text-sm">Creating your live conversational agent</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {okpoExport.status === 'success' && (
+            <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+              <h4 className="text-green-400 font-semibold mb-3">✅ Agent Successfully Deployed!</h4>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-gray-300 text-sm mb-2">Your agent is now live and ready to chat:</p>
+                  <a 
+                    href={`https://${okpoExport.data.agent.url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white font-semibold transition-colors"
+                  >
+                    🌐 Open Live Agent
+                  </a>
+                </div>
+                
+                <div className="bg-gray-800 p-3 rounded">
+                  <p className="text-xs text-gray-400 mb-1">Share URL:</p>
+                  <p className="text-green-400 text-sm font-mono break-all">
+                    https://{okpoExport.data.agent.url}
+                  </p>
+                </div>
+
+                {okpoExport.data.test?.success && (
+                  <div className="bg-gray-800 p-3 rounded">
+                    <p className="text-xs text-gray-400 mb-2">✅ Agent Test Successful:</p>
+                    <div className="space-y-2 text-xs">
+                      <div>
+                        <span className="text-blue-400">Test Message:</span>
+                        <p className="text-gray-300 ml-2">"{okpoExport.data.test.testMessage}"</p>
+                      </div>
+                      <div>
+                        <span className="text-green-400">Agent Response:</span>
+                        <p className="text-gray-300 ml-2">"{okpoExport.data.test.response}"</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {okpoExport.status === 'error' && (
+            <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+              <h4 className="text-red-400 font-semibold mb-2">❌ Export Failed</h4>
+              <p className="text-gray-300 text-sm mb-3">{okpoExport.error}</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleRetryExport}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm transition-colors"
+                >
+                  🔄 Retry
+                </button>
+                <button
+                  onClick={handleRetryExport}
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm transition-colors"
+                >
+                  ❌ Dismiss
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -306,12 +412,21 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-        <button
-          onClick={exportConversation}
-          className="flex-1 py-3 px-6 bg-void hover:bg-void/80 border border-gray-600 hover:border-plasma/50 rounded-lg font-semibold transition-all min-h-[48px]"
-        >
-          💾 Export Session
-        </button>
+        {okpoExport.status === 'idle' ? (
+          <button
+            onClick={handleOkPoExport}
+            className="flex-1 py-3 px-6 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 rounded-lg font-semibold transition-all min-h-[48px]"
+          >
+            🚀 Deploy to OkPo
+          </button>
+        ) : (
+          <button
+            onClick={exportConversation}
+            className="flex-1 py-3 px-6 bg-void hover:bg-void/80 border border-gray-600 hover:border-plasma/50 rounded-lg font-semibold transition-all min-h-[48px]"
+          >
+            💾 Export Session JSON
+          </button>
+        )}
         
         <button
           onClick={onReset}
