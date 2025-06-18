@@ -424,7 +424,7 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
             onClick={exportConversation}
             className="flex-1 py-3 px-6 bg-void hover:bg-void/80 border border-gray-600 hover:border-plasma/50 rounded-lg font-semibold transition-all min-h-[48px]"
           >
-            💾 Export Session JSON
+           🚀 Deploy to Okpo
           </button>
         )}
         

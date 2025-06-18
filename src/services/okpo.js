@@ -212,7 +212,7 @@ class OkPoClient {
       agentName: behaviorConfig.deployment_config.agent_name,
       systemPrompt: behaviorConfig.deployment_config.system_prompt,
       greeting: behaviorConfig.deployment_config.witty_greeting,
-      description: `${soul.role} specializing in ${compressedContext.domain}. ${soul.description}`
+      description: `${soul.role}. ${compressedContext.domain}. ${soul.description}`
     }
   
     try {
