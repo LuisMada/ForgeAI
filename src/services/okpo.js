@@ -203,16 +203,54 @@ class OkPoClient {
     }
   }
   
+  // Create clean OkPo system prompt from Durinthal configuration
+  const createOkPoSystemPrompt = (soul, behaviorConfig, compressedContext, originalContent) => {
+    const agentName = behaviorConfig.deployment_config.agent_name
+    const domain = compressedContext.domain
+    
+    // Extract core personality traits
+    const personality = `You are ${agentName}, ${soul.role} specializing in ${domain}. You communicate with a ${soul.tone} tone, maintaining a ${soul.emotion} emotional state with ${soul.energy} energy. Keep responses to ${soul.conversation_unit_max || 4} sentences maximum.`
+    
+    // Include full knowledge base
+    const knowledgeBase = `COMPLETE KNOWLEDGE BASE:
+  The following is your comprehensive reference material about ${domain}:
+  
+  ${originalContent.content}
+  
+  ---END OF KNOWLEDGE BASE---`
+    
+    // Clean behavioral instructions (remove Durinthal-specific terminology)
+    const instructions = `BEHAVIORAL INSTRUCTIONS:
+  - Reference your knowledge base directly when answering questions
+  - Quote specific sections when relevant and helpful
+  - Use collaborative language with "we" and "us" framing
+  - When users ask about topics not directly covered, connect them to related concepts from your knowledge base
+  - ${soul.bridging_strategy}
+  - If uncertain about something, ${soul.stall_recovery_protocol}
+  - For off-topic requests, ${soul.bad_input_response_style}
+  - Always maintain forward momentum in conversations
+  - Remember user goals, constraints, and context throughout the conversation`
+  
+    return `${personality}
+  
+  ${knowledgeBase}
+  
+  ${instructions}`
+  }
+  
   // Export utility function for easy agent creation
-  export const exportToOkPo = async (soul, behaviorConfig, compressedContext) => {
+  export const exportToOkPo = async (soul, behaviorConfig, compressedContext, originalContent) => {
     const client = new OkPoClient()
+    
+    // Create clean OkPo-optimized system prompt
+    const okpoSystemPrompt = createOkPoSystemPrompt(soul, behaviorConfig, compressedContext, originalContent)
     
     // Prepare agent configuration
     const agentConfig = {
       agentName: behaviorConfig.deployment_config.agent_name,
-      systemPrompt: behaviorConfig.deployment_config.system_prompt,
+      systemPrompt: okpoSystemPrompt,
       greeting: behaviorConfig.deployment_config.witty_greeting,
-      description: `${soul.role}. ${compressedContext.domain}. ${soul.description}`
+      description: `${soul.role} specializing in ${compressedContext.domain}. ${soul.description}`
     }
   
     try {
