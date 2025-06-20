@@ -44,14 +44,25 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
   }, [soul, behaviorConfig, compressedContext])
 
   useEffect(() => {
-    scrollToBottom()
+    // Only scroll for the initial greeting message
+    if (messages.length === 1) {
+      scrollToBottom()
+    }
   }, [messages])
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    // Use a small delay to ensure DOM has updated
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+    }, 100)
   }
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (e) => {
+    // Prevent default form submission if this is triggered by a form
+    if (e) {
+      e.preventDefault()
+    }
+    
     if (!inputMessage.trim() || isThinking) return
 
     const startTime = Date.now()
@@ -101,8 +112,8 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
+      e.preventDefault() // Prevent default behavior
+      handleSendMessage(e) // Pass the event to handleSendMessage
     }
   }
 
@@ -344,8 +355,8 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className="flex gap-2 sm:gap-3 mb-6">
+      {/* Input Area - Wrapped in form to handle submission properly */}
+      <form onSubmit={handleSendMessage} className="flex gap-2 sm:gap-3 mb-6">
         <textarea
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
@@ -356,13 +367,13 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
           disabled={isThinking}
         />
         <button
-          onClick={handleSendMessage}
+          type="submit"
           disabled={!inputMessage.trim() || isThinking}
           className="px-4 sm:px-6 py-3 bg-synapse hover:bg-synapse/80 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition-all self-end min-h-[48px]"
         >
           {isThinking ? '🤔' : '💬'}
         </button>
-      </div>
+      </form>
 
       {/* Quick Conversation Starters */}
       {quickStarters.length > 0 && (
@@ -370,6 +381,7 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
           {quickStarters.map((starter, index) => (
             <button
               key={index}
+              type="button"
               onClick={() => setInputMessage(starter)}
               className="p-3 bg-void hover:bg-void/80 border border-gray-600 hover:border-synapse/50 rounded-lg text-xs sm:text-sm transition-all min-h-[48px] text-left"
             >
@@ -414,6 +426,7 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         {okpoExport.status === 'idle' ? (
           <button
+            type="button"
             onClick={handleOkPoExport}
             className="flex-1 py-3 px-6 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 rounded-lg font-semibold transition-all min-h-[48px]"
           >
@@ -421,14 +434,16 @@ function AgentInterface({ soul, behaviorConfig, compressedContext, originalConte
           </button>
         ) : (
           <button
+            type="button"
             onClick={exportConversation}
             className="flex-1 py-3 px-6 bg-void hover:bg-void/80 border border-gray-600 hover:border-plasma/50 rounded-lg font-semibold transition-all min-h-[48px]"
           >
-            💾 Export Session JSON
+            🚀 Deploy to OkPo
           </button>
         )}
         
         <button
+          type="button"
           onClick={onReset}
           className="flex-1 py-3 px-6 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg font-semibold transition-all min-h-[48px]"
         >
