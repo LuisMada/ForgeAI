@@ -175,8 +175,27 @@ function BehaviorRuleset({ compressedContext, chosenSoul, onComplete }) {
             <p className="text-gray-300">{renderValue(config.llm_settings?.temperature)}</p>
           </div>
           <div>
-            <span className="text-purple-400 font-medium">Max Tokens:</span>
-            <p className="text-gray-300">{renderValue(config.llm_settings?.max_tokens)}</p>
+            <span className="text-purple-400 font-medium">Expression:</span>
+            <p className="text-gray-300">{renderValue(chosenSoul.response_expression?.preferred_type)}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Expression Profile */}
+      <div className="bg-neural/50 p-4 rounded-lg mb-6">
+        <h4 className="text-yellow-400 font-semibold mb-3">🎭 Expression Profile</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-yellow-400 font-medium">Communication Type:</span>
+            <p className="text-gray-300">{renderValue(chosenSoul.response_expression?.preferred_type)}</p>
+          </div>
+          <div>
+            <span className="text-yellow-400 font-medium">Flexibility:</span>
+            <p className="text-gray-300">{renderValue(chosenSoul.response_expression?.adaptive_variance)}</p>
+          </div>
+          <div className="sm:col-span-2">
+            <span className="text-yellow-400 font-medium">Format Instincts:</span>
+            <p className="text-gray-300">{renderValue(chosenSoul.response_expression?.format_bias)}</p>
           </div>
         </div>
       </div>
@@ -184,7 +203,7 @@ function BehaviorRuleset({ compressedContext, chosenSoul, onComplete }) {
       {/* Response Constraints */}
       {config.response_constraints && (
         <div className="bg-neural/50 p-4 rounded-lg mb-6">
-          <h4 className="text-plasma font-semibold mb-3">📝 Response Constraints</h4>
+          <h4 className="text-plasma font-semibold mb-3">📝 Expression Constraints</h4>
           <ul className="space-y-2">
             {renderArray(config.response_constraints).map((constraint, index) => (
               <li key={index} className="text-sm text-gray-300 flex items-start">
@@ -259,7 +278,7 @@ function BehaviorRuleset({ compressedContext, chosenSoul, onComplete }) {
             <span className="text-yellow-400">Domain:</span> {renderValue(config.content_domain)}
           </div>
           <div>
-            <span className="text-yellow-400">Deployment Type:</span> In-site chat with content-specific constraints
+            <span className="text-yellow-400">Expression Type:</span> {renderValue(chosenSoul.response_expression?.preferred_type)} with {renderValue(chosenSoul.response_expression?.adaptive_variance)} flexibility
           </div>
         </div>
       </div>

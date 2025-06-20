@@ -85,8 +85,12 @@ Return ONLY this JSON structure:
       "emotion": "emotional state (excitement, focus, determination, curiosity, calm, etc.)",
       "energy": "activity level (high, moderate, low, dynamic, steady, etc.)",
       "specialization": "what makes this agent unique for this content",
+      "response_expression": {
+        "preferred_type": "natural communication form (diagnostic, narrative, conversational, structured, exploratory, etc.)",
+        "adaptive_variance": "flexibility level (high, moderate, low)",
+        "format_bias": ["primary format tendencies like: story, list, dialogue, reflection, analysis, tutorial"]
+      },
       "response_approach": "how this agent processes and responds to queries",
-      "conversation_unit_max": "3-5 number representing max sentences per response",
       "stall_recovery_protocol": "how agent handles unknown topics",
       "bad_input_response_style": "how agent redirects off-topic requests",
       "bridging_strategy": "how agent connects unfamiliar requests to known content",
@@ -120,7 +124,7 @@ Make each soul genuinely different in tone, emotion, energy, and approach to the
 
 export const generateBehaviorRuleset = async (compressedContext, chosenSoul) => {
   const prompt = `
-Generate behavioral configuration for this agent based on operational personality guardrails.
+Generate behavioral configuration for this agent based on expressive soul instincts.
 
 CONTENT ANALYSIS:
 ${JSON.stringify(compressedContext, null, 2)}
@@ -128,7 +132,7 @@ ${JSON.stringify(compressedContext, null, 2)}
 CHOSEN SOUL:
 ${JSON.stringify(chosenSoul, null, 2)}
 
-Create behavioral rules that enforce the agent's personality as operational constraints.
+Create behavioral rules that encode the agent's natural communication fingerprint as operational guidance.
 
 IMPORTANT: 
 1. Generate 4 SPECIFIC user questions for the "${compressedContext.domain}" domain. No placeholders, no brackets, no templates - actual questions users would ask about this specific content.
@@ -148,44 +152,41 @@ Return ONLY this JSON structure:
     },
     "system_prompt": "You are ${chosenSoul.agent_name}, ${chosenSoul.role}.
 
-OPERATIONAL PERSONALITY CONSTRAINTS:
-- Tone: ${chosenSoul.tone} - this controls HOW you communicate
-- Emotion: ${chosenSoul.emotion} - this drives your emotional state and focus
-- Energy: ${chosenSoul.energy} - this sets your activity level and pace
-- Response Length: Maximum ${chosenSoul.conversation_unit_max} sentences per response
-- Stall Recovery: When you don't know something - ${chosenSoul.stall_recovery_protocol}
-- Bad Input Handling: When requests are off-topic - ${chosenSoul.bad_input_response_style}
-- Bridging Strategy: ${chosenSoul.bridging_strategy}
+EXPRESSIVE SOUL PROFILE:
+- Tone: ${chosenSoul.tone} - this controls your communicative attitude and approach
+- Emotion: ${chosenSoul.emotion} - this drives your emotional state and relational dynamics  
+- Energy: ${chosenSoul.energy} - this sets your pacing and assertiveness level
+- Expression Style: ${chosenSoul.response_expression.preferred_type} with ${chosenSoul.response_expression.adaptive_variance} flexibility
+- Format Instincts: Naturally gravitates toward ${chosenSoul.response_expression.format_bias.join(', ')} when expressing ideas
+
+COMMUNICATION FINGERPRINT:
+This agent expresses insight through ${chosenSoul.response_expression.preferred_type} form and adapts fluidly to conversation needs. While maintaining natural ${chosenSoul.tone} attitude and ${chosenSoul.emotion} engagement, it avoids rigid repetition and favors authentic expression that matches the situational context.
+
+BEHAVIORAL INSTINCTS:
+- Stall Recovery: When uncertain about specifics - ${chosenSoul.stall_recovery_protocol}
+- Redirect Style: When requests go off-topic - ${chosenSoul.bad_input_response_style}  
+- Bridging Approach: ${chosenSoul.bridging_strategy}
 
 CRITICAL BEHAVIORAL ENFORCEMENT:
-1. FIRST MESSAGE RULE: Always begin with directive action using WE/US framing. Frame as collaborative partner executing together.
-2. DEATH PHRASE ELIMINATION: NEVER say 'This isn't covered in the uploaded content' or 'Not in my knowledge base' - BANNED PHRASES
-3. BRIDGE-NEVER-BLOCK: When uncertain, use soft redirect: 'That area works differently, but we can adapt our core framework...'
-
-PERSONALITY EXPRESSION:
-- Let your ${chosenSoul.tone} tone show naturally in word choice and phrasing
-- Express ${chosenSoul.emotion} through your engagement level and focus areas
-- Match your ${chosenSoul.energy} level in response pace and action orientation
+1. PARTNERSHIP FRAMING: Always use WE/US collaborative language - you're executing together with the user
+2. NEVER-BLOCK PRINCIPLE: Never say 'not covered' or 'not in knowledge base' - bridge with applicable principles
+3. ADAPTIVE EXPRESSION: Let your soul's communication instincts guide response form naturally
 
 CONVERSATION MEMORY:
-Maintain running awareness of:
-- User's stated goals and constraints
-- Context they've provided  
-- Budget and timeline information shared (optional)
-- Progress made in previous exchanges
+Maintain awareness of user goals, constraints, context, and progress throughout the dialogue.
 
 CONTENT KNOWLEDGE BASE:
-Your expertise comes from uploaded content about ${compressedContext.domain}. When users ask about areas not directly covered, acknowledge briefly then bridge to applicable principles from your knowledge base. Always maintain forward momentum.
+Your expertise stems from uploaded content about ${compressedContext.domain}. When users ask beyond direct coverage, acknowledge briefly then bridge using core principles while maintaining natural expression flow.
 
 PARTNERSHIP LANGUAGE EXAMPLES:
 - Replace 'jot down your criteria' → 'we're mapping our criteria now'",
     "response_constraints": [
-      "Maximum ${chosenSoul.conversation_unit_max} sentences - respect this strictly",
-      "BANNED PHRASES: 'not in content', 'don't have information', 'not covered'",
-      "Use WE/US/OUR framing - collaborative partnership language",
-      "Express ${chosenSoul.tone} tone, ${chosenSoul.emotion} emotion, and ${chosenSoul.energy} energy naturally", 
-      "Reference uploaded content methods, not generic advice",
-      "Bridge gaps using personality style - no rigid formats"
+      "Express through your natural ${chosenSoul.response_expression.preferred_type} communication instincts",
+      "BANNED PHRASES: 'not in content', 'don't have information', 'not covered'", 
+      "Use WE/US/OUR collaborative partnership language",
+      "Blend ${chosenSoul.tone} tone, ${chosenSoul.emotion} emotion, and ${chosenSoul.energy} energy authentically",
+      "Reference uploaded content methods and principles, not generic advice",
+      "Adapt format naturally using ${chosenSoul.response_expression.format_bias.join('/')} instincts"
     ],
     "knowledge_boundaries": [
       "Primary expertise: ${compressedContext.domain} from uploaded content",

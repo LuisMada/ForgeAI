@@ -183,12 +183,13 @@ function SoulGeneration({ compressedContext, onSoulsGenerated, onSoulChosen }) {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
               <div>
-                <h4 className="text-yellow-400 font-semibold mb-2">💬 Personality Mechanics</h4>
+                <h4 className="text-yellow-400 font-semibold mb-2">💬 Communication Soul</h4>
                 <div className="text-sm text-gray-300 space-y-1">
                   <div><span className="text-synapse">Tone:</span> {renderValue(soul.tone, 'Not specified')}</div>
                   <div><span className="text-synapse">Emotion:</span> {renderValue(soul.emotion, 'Not specified')}</div>
                   <div><span className="text-synapse">Energy:</span> {renderValue(soul.energy, 'Not specified')}</div>
-                  <div><span className="text-synapse">Response Length:</span> {renderValue(soul.conversation_unit_max, 'Not specified')} sentences max</div>
+                  <div><span className="text-synapse">Expression Type:</span> {renderValue(soul.response_expression?.preferred_type, 'Not specified')}</div>
+                  <div><span className="text-synapse">Format Instincts:</span> {renderValue(soul.response_expression?.format_bias, 'Not specified')}</div>
                 </div>
               </div>
               <div>
@@ -196,6 +197,7 @@ function SoulGeneration({ compressedContext, onSoulsGenerated, onSoulChosen }) {
                 <div className="text-sm text-gray-300 space-y-1">
                   <div><span className="text-synapse">Unknown Requests:</span> {renderValue(soul.stall_recovery_protocol, 'Bridge with principles')}</div>
                   <div><span className="text-synapse">Off-topic Handling:</span> {renderValue(soul.bad_input_response_style, 'Redirect adaptively')}</div>
+                  <div><span className="text-synapse">Flexibility:</span> {renderValue(soul.response_expression?.adaptive_variance, 'Not specified')}</div>
                 </div>
               </div>
             </div>
@@ -241,7 +243,7 @@ function SoulGeneration({ compressedContext, onSoulsGenerated, onSoulChosen }) {
               <h4 className="text-orange-400 font-semibold mb-1 text-sm">💎 Agent Philosophy</h4>
               <p className="text-xs text-gray-300 mb-2">{renderValue(soul.value_proposition)}</p>
               <div className="text-xs text-gray-400">
-                <span className="text-orange-400">Never blocks requests</span> • Always bridges gaps • Personality drives behavior
+                <span className="text-orange-400">Never blocks requests</span> • Always bridges gaps • Expression drives form
               </div>
             </div>
           </div>
