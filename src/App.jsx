@@ -20,6 +20,7 @@ function App() {
   const [availableSouls, setAvailableSouls] = useState([])
   const [chosenSoul, setChosenSoul] = useState(null)
   const [behaviorConfig, setBehaviorConfig] = useState(null)
+  const [soulNudges, setSoulNudges] = useState([]) // New state for nudging
 
   const progressToNext = (data) => {
     switch(currentStage) {
@@ -53,6 +54,7 @@ function App() {
     setAvailableSouls([])
     setChosenSoul(null)
     setBehaviorConfig(null)
+    setSoulNudges([]) // Reset nudges when starting over
   }
 
   const renderCurrentStage = () => {
@@ -139,6 +141,11 @@ function App() {
           </div>
           <div className="text-center text-xs sm:text-sm text-gray-400">
             {stageNames[currentStage]} Phase
+            {currentStage === STAGES.GENERATE && soulNudges.length > 0 && (
+              <span className="text-plasma ml-2">
+                ({soulNudges.length} guidance{soulNudges.length !== 1 ? 's' : ''})
+              </span>
+            )}
           </div>
         </div>
 
